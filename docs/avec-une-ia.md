@@ -8,7 +8,8 @@ Le plus rapide pour adapter ce site à un mariage est de confier le travail à u
 |---|---|
 | `AGENTS.md` | Le guide lu par les assistants de programmation : quel fichier ouvrir selon la demande, les règles du projet, la façon de vérifier |
 | `CLAUDE.md` | Renvoie vers `AGENTS.md`, pour les outils qui cherchent ce nom de fichier |
-| `donnees.js` | Tous les réglages, commentés, en 50 lignes |
+| `donnees.js` | Tous les réglages, commentés |
+| `?verifier` | Ajouté à l'adresse de la page de dépôt, il liste les incohérences du fichier de données |
 | Le mode démonstration | Il permet de vérifier une modification sans projet Supabase |
 
 ## Avec un assistant de discussion

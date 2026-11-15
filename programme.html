@@ -224,7 +224,8 @@ $('#btn-login').onclick = async () => {
 };
 $('#mdp').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btn-login').click(); });
 sb.auth.getSession().then(async ({ data }) => {
-  if (data.session) demarrer();   // sinon, l'écran de connexion reste affiché
+  /* Page ouverte par défaut. Avec l'option comptes.programme de donnees.js, l'écran de connexion reste affiché. */
+  if (data.session || DEMO || !(M.comptes && M.comptes.programme)) demarrer();
 });
 
 async function demarrer(){

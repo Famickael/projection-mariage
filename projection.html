@@ -139,7 +139,8 @@ $('#form-login').addEventListener('submit', async e => {
   demarrer();
 });
 sb.auth.getSession().then(async ({ data }) => {
-  if (data.session) demarrer();   // sinon, l'écran de connexion reste affiché
+  /* Page ouverte par défaut. Avec l'option comptes.projection de donnees.js, l'écran de connexion reste affiché. */
+  if (data.session || DEMO || !(M.comptes && M.comptes.projection)) demarrer();
 });
 
 async function demarrer(){

@@ -27,7 +27,7 @@ window.MARIAGE = {
     titre: "Vos photos et vidéos",
     lignes: [
       "Ce que vous déposez ici sera projeté pendant la soirée.",
-      "Seuls les organisateurs y ont accès : les autres invités ne voient pas vos envois."
+      "Cette page n'affiche aucun envoi : vos photos n'apparaissent qu'à la projection."
     ]
   },
 
@@ -42,8 +42,16 @@ window.MARIAGE = {
     jourPrincipal: "2027-06-12"       // jour ouvert par défaut en dehors de ces dates
   },
 
+  /* Option, désactivée par défaut : demander un compte pour ouvrir la projection ou le programme.
+     À activer avec supabase/option-acces-restreint.sql. Voir docs/options.md. */
+  comptes: {
+    projection: false,
+    programme: false
+  },
+
   /* Branchement Supabase (Project Settings > API). La clé « anon / publishable »
-     est faite pour être publique. Ne collez jamais ici la clé « service_role ». */
+     est faite pour être publique. Ne collez jamais ici la clé « service_role ».
+     Vérification du fichier : ajoutez ?verifier à l'adresse de index.html. */
   supabase: {
     url: "",                          // ex. "https://abcdefghijklmnop.supabase.co"
     cle: "",

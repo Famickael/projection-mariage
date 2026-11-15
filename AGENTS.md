@@ -4,7 +4,7 @@ Ce fichier donne à un assistant IA le contexte utile pour modifier ce projet sa
 
 ## Le projet en 5 lignes
 
-- Site statique de 4 pages pour un mariage : dépôt de souvenirs par les invités, administration, projection pendant la soirée, programme des témoins. Pas d'étape de compilation, pas de serveur à soi.
+- Site statique de 4 pages pour un mariage : dépôt de souvenirs par les invités (`index.html`), administration (`admin.html`), projection pendant la soirée (`projection.html`), programme de l'équipe qui organise (`programme.html`). Pas d'étape de compilation, pas de serveur à soi.
 - `donnees.js` contient tout ce qui est propre à un mariage, dans l'objet `window.MARIAGE`.
 - Les fichiers et les données vont dans un projet Supabase (base, stockage, comptes). Le schéma est dans `supabase/schema.sql`.
 - Tant que `supabase.url` est vide, `demo/demo.js` remplace Supabase par des données fictives en mémoire.
@@ -23,7 +23,9 @@ Ne lisez que ce qui sert à la demande.
 | Modifier le dépôt des invités | `index.html` | `index.html` |
 | Modifier la modération ou l'export | `admin.html` | `admin.html` |
 | Modifier le diaporama | `projection.html` | `projection.html` |
-| Modifier le planning des témoins | `programme.html` | `programme.html` |
+| Modifier le programme | `programme.html` | `programme.html` |
+| Activer une option | `docs/options.md` | `donnees.js`, et un script de `supabase/` |
+| Modifier la vérification de `donnees.js` | `verifier.js` | `verifier.js`, `docs/donnees.md` |
 | Changer les droits d'accès | `supabase/schema.sql`, `docs/precautions.md` | `supabase/schema.sql` et la documentation |
 
 ## Règles à respecter
@@ -32,24 +34,28 @@ Ne lisez que ce qui sert à la demande.
 - **Un champ facultatif absent ne doit rien casser.**
 - **Pas de donnée personnelle réelle** dans le dépôt : ni nom, ni adresse, ni photo de personne.
 - **Pas de clé secrète** dans les fichiers. Seule la clé publique de Supabase (« anon » ou « publishable ») peut figurer dans `donnees.js`, jamais la clé `service_role`.
-- **Un invité ne lit rien.** Toute nouvelle table ou tout nouveau bucket garde ce principe : dépôt pour le rôle `anon`, lecture pour le rôle `authenticated`.
+- **La page de dépôt n'affiche aucun envoi.** Les droits par défaut sont ceux de `supabase/schema.sql` : dépôt, projection et programme sans compte, administration avec compte.
+- **Toute protection supplémentaire est une option désactivée par défaut**, réglée dans `donnees.js` et documentée dans `docs/options.md`.
 - **Toute fonction ajoutée à une page doit marcher en démonstration**, donc être prise en charge par `demo/demo.js`.
 - **Les textes venus des invités passent par `echap()`** avant d'être insérés dans la page.
+- **Règles d'écriture de la documentation** : français sobre, phrases courtes, tournure impersonnelle, chiffres en chiffres, pas de tiret long, pas d'émoji. Rien n'est affirmé sans être vérifié dans le code.
 - **Pas de dépendance ni d'outil de compilation.** Les 3 bibliothèques externes sont chargées par leur adresse.
 - **La page de dépôt doit rester utilisable au clavier et sur un écran de 360 pixels de large.**
 
 ## Vérifier une modification
 
 1. Servez le dossier : `python3 -m http.server 8000`, puis ouvrez les 4 pages. Sans réglage Supabase, elles s'ouvrent en démonstration.
-2. Vérifiez que la console du navigateur ne montre aucune erreur.
-3. Sur `index.html`, déposez un fichier jusqu'à l'écran « Merci ».
-4. Sur `programme.html`, ajoutez `?t=2027-06-12T15:00` à l'adresse pour simuler le jour du mariage.
+2. Ouvrez `index.html?verifier` : l'encadré doit annoncer qu'aucune incohérence n'est détectée.
+3. Vérifiez que la console du navigateur ne montre aucune erreur.
+4. Sur `index.html`, déposez un fichier jusqu'à l'écran « Merci ».
+5. Sur `programme.html`, ajoutez `?t=2027-06-12T15:00` à l'adresse pour simuler le jour du mariage.
 
 Il n'y a pas de test automatique dans le dépôt. Le branchement réel se vérifie sur un projet Supabase, en suivant `docs/installation.md`.
 
 ## Mettre à jour la documentation
 
 - Un nouveau champ de `donnees.js` se documente dans `donnees.js` et dans `docs/donnees.md`.
+- Une nouvelle option se documente dans `docs/options.md`.
 - Un changement de droits se reporte dans `docs/precautions.md`.
 - Toute évolution notable s'ajoute en tête de `CHANGELOG.md`, avec la date.
 - Le `README.md` reste court : le détail va dans `docs/`.

@@ -95,10 +95,22 @@
     };
   };
 
+  /* Bandeau de démonstration, avec un lien vers chacune des 4 pages. */
   document.addEventListener('DOMContentLoaded', function () {
-    var b = document.createElement('div');
-    b.textContent = 'Démonstration · données fictives, rien n\'est envoyé';
-    b.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:50;background:#2a2426;color:#f3efe7;font:13px/1.3 system-ui,sans-serif;padding:5px 10px;border-radius:12px;opacity:.82;pointer-events:none';
+    var pages = [['index.html', 'Dépôt'], ['admin.html', 'Administration'], ['projection.html', 'Projection'], ['programme.html', 'Programme']];
+    var ici = location.pathname.split('/').pop() || 'index.html';
+    var b = document.createElement('nav');
+    b.id = 'bandeau-demo';
+    b.setAttribute('aria-label', 'Pages de la démonstration');
+    b.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:50;background:#2a2426;color:#f3efe7;font:13px/1.4 system-ui,sans-serif;padding:6px 10px;text-align:center;display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center';
+    var t = document.createElement('span'); t.textContent = 'Démonstration, rien n\'est envoyé :'; t.style.opacity = '.75'; b.appendChild(t);
+    pages.forEach(function (p) {
+      var a = document.createElement('a'); a.href = p[0]; a.textContent = p[1];
+      a.style.cssText = 'color:#f3efe7;text-decoration:' + (p[0] === ici ? 'none;font-weight:700' : 'underline');
+      if (p[0] === ici) a.setAttribute('aria-current', 'page');
+      b.appendChild(a);
+    });
     document.body.appendChild(b);
+    if (ici !== 'projection.html') document.body.style.paddingTop = b.offsetHeight + 'px';
   });
 })();

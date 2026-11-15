@@ -1,8 +1,15 @@
 -- Schéma Supabase du site de souvenirs. À exécuter une fois dans l'éditeur SQL d'un projet neuf.
--- Principe : un invité (clé publique, rôle anon) peut déposer mais ne peut rien lire.
--- Seuls les comptes créés à la main dans Authentication > Users peuvent lire, modifier et supprimer.
+--
+-- Réglage par défaut, le plus simple :
+--   - tout le monde peut déposer, sans compte
+--   - la projection et le programme s'ouvrent sans compte
+--   - corriger, masquer et supprimer des souvenirs demande un compte (page d'administration).
+-- Conséquence : avec la clé publique, toute personne qui connaît l'adresse peut lire les souvenirs
+-- marqués « projeté » et modifier le programme. Pour demander un compte aussi sur ces 2 pages,
+-- exécutez ensuite option-acces-restreint.sql.
+--
 -- IMPORTANT : désactivez l'inscription libre (Authentication > Sign In / Providers > Allow new users
--- to sign up), sinon n'importe qui peut se créer un compte et obtenir ces droits.
+-- to sign up), sinon n'importe qui peut se créer un compte et obtenir les droits d'administration.
 
 create table public.envois (
   id uuid primary key,
@@ -42,18 +49,27 @@ alter table public.envois enable row level security;
 alter table public.fichiers enable row level security;
 alter table public.programme enable row level security;
 
--- Invités : dépôt uniquement.
-create policy invites_depot_envois on public.envois for insert to anon with check (true);
-create policy invites_depot_fichiers on public.fichiers for insert to anon with check (true);
+-- Dépôt : ouvert à tous.
+create policy depot_envois on public.envois for insert to anon with check (true);
+create policy depot_fichiers on public.fichiers for insert to anon with check (true);
 
--- Organisateurs et témoins connectés : tout.
-create policy orga_envois on public.envois for all to authenticated using (true) with check (true);
-create policy orga_fichiers on public.fichiers for all to authenticated using (true) with check (true);
-create policy orga_programme on public.programme for all to authenticated using (true) with check (true);
+-- Projection sans compte : lecture de ce qui est marqué « projeté ».
+create policy projection_envois on public.envois for select to anon using (visible = true);
+create policy projection_fichiers on public.fichiers for select to anon using (visible = true);
 
--- Stockage : bucket privé. Le nom doit être celui de supabase.bucket dans donnees.js.
+-- Programme sans compte : lecture et modification.
+create policy programme_ouvert on public.programme for all to anon using (true) with check (true);
+
+-- Comptes connectés (administration) : tout.
+create policy comptes_envois on public.envois for all to authenticated using (true) with check (true);
+create policy comptes_fichiers on public.fichiers for all to authenticated using (true) with check (true);
+create policy comptes_programme on public.programme for all to authenticated using (true) with check (true);
+
+-- Stockage : espace privé. Son nom doit être celui de supabase.bucket dans donnees.js.
 insert into storage.buckets (id, name, public) values ('mariage', 'mariage', false);
-create policy invites_depot_stockage on storage.objects for insert to anon with check (bucket_id = 'mariage');
-create policy orga_lecture_stockage on storage.objects for select to authenticated using (bucket_id = 'mariage');
-create policy orga_depot_stockage on storage.objects for insert to authenticated with check (bucket_id = 'mariage');
-create policy orga_suppression_stockage on storage.objects for delete to authenticated using (bucket_id = 'mariage');
+create policy depot_stockage on storage.objects for insert to anon with check (bucket_id = 'mariage');
+create policy projection_stockage on storage.objects for select to anon
+  using (bucket_id = 'mariage' and exists (select 1 from public.fichiers f where f.chemin = objects.name and f.visible = true));
+create policy comptes_lecture_stockage on storage.objects for select to authenticated using (bucket_id = 'mariage');
+create policy comptes_depot_stockage on storage.objects for insert to authenticated with check (bucket_id = 'mariage');
+create policy comptes_suppression_stockage on storage.objects for delete to authenticated using (bucket_id = 'mariage');
