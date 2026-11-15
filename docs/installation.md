@@ -7,7 +7,7 @@ Supabase propose une offre gratuite. Ses plafonds (espace total, taille par fich
 ## 1. Créer le projet Supabase
 
 1. Créez un compte sur supabase.com, puis un projet, dans une région proche de vos invités.
-2. Ouvrez « SQL Editor », collez le contenu de [`supabase/schema.sql`](../supabase/schema.sql) et exécutez-le. Il crée 3 tables, un espace de stockage privé nommé `mariage`, et les droits d'accès.
+2. Ouvrez « SQL Editor », collez le contenu de [`supabase/schema.sql`](../supabase/schema.sql) et exécutez-le. Il crée 3 tables, un espace de stockage privé nommé `mariage` (Supabase appelle cet espace un « bucket »), et les droits d'accès.
 3. Dans « Authentication », rubrique des fournisseurs de connexion, **désactivez l'inscription des nouveaux utilisateurs**. Sans cela, n'importe qui pourrait se créer un compte et accéder à l'administration.
 
 ## 2. Créer les comptes
@@ -39,14 +39,14 @@ Dès que `url` est renseigné, le mode démonstration s'arrête et les pages uti
 2. Générez un QR code vers l'adresse de la page de dépôt, pour les tables et le livret.
 3. Envoyez l'adresse de `programme.html` à l'équipe qui organise, et gardez celle de `admin.html` et de `projection.html`.
 
-Aucune page publique ne mène à l'administration ni à la projection. Leur adresse se devine pourtant : voir [les précautions](precautions.md).
+La page de dépôt ne mène à aucune autre page. Le programme, lui, affiche un lien vers les 3 autres. Les adresses se devinent de toute façon : voir [les précautions](precautions.md).
 
 ## 5. Faire un essai complet
 
 Cet essai est à faire avant d'imprimer le QR code. Le modèle n'a été vérifié qu'en démonstration : le branchement réel reste à valider sur votre projet.
 
 1. Depuis un iPhone et un téléphone Android, déposez une photo avec un mot, puis une vidéo de plusieurs centaines de Mo.
-2. Coupez le réseau pendant l'envoi de la vidéo, puis rétablissez-le : l'envoi doit reprendre.
+2. Coupez le réseau quelques secondes pendant l'envoi de la vidéo, puis rétablissez-le : l'envoi doit reprendre.
 3. Ouvrez `admin.html`, connectez-vous, vérifiez les envois et essayez « Tout télécharger ».
 4. Ouvrez `projection.html` sur l'ordinateur qui servira le jour du mariage, relié à l'écran ou au vidéoprojecteur.
 5. Ouvrez `programme.html` sur 2 appareils, ajoutez un moment sur l'un et vérifiez qu'il apparaît sur l'autre.

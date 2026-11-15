@@ -29,7 +29,7 @@ Le site répond à 3 besoins liés :
 | Aucun compte pour déposer | Un compte ferait renoncer une partie des invités |
 | La page de dépôt n'affiche aucun envoi | Les invités déposent sans se demander qui verra quoi avant la soirée |
 | Un mot par fichier, pas de message général | Le mot s'affiche avec la photo qu'il commente |
-| Envoi par morceaux avec reprise | Une vidéo de téléphone pèse plusieurs centaines de Mo, et le réseau d'une salle des fêtes est instable |
+| Envoi par morceaux, avec reprise après une courte coupure | Une vidéo de téléphone pèse plusieurs centaines de Mo, et le réseau d'une salle des fêtes est instable |
 | Un interrupteur « Projeté » distinct de la suppression | Retirer une photo de l'écran ne doit pas la retirer de l'archive |
 | Les nouveaux envois passent en priorité | L'invité voit sa photo à l'écran peu après l'avoir envoyée, ce qui incite les autres à déposer |
 | Les médias gardés en mémoire | La projection ne dépend plus du réseau une fois lancée |
@@ -52,7 +52,8 @@ Le site répond à 3 besoins liés :
 
 - Un plafond de taille ou de nombre par envoi, pour limiter le risque de remplissage du stockage.
 - Des rôles distincts entre l'administration et le programme.
-- Une conversion des photos HEIC à l'envoi, pour une projection fiable sur tous les navigateurs.
+- Une reprise d'envoi qui survit à une longue coupure ou à la fermeture de la page.
+- Une conversion des photos HEIC (le format des iPhone) à l'envoi, pour une projection fiable sur tous les navigateurs.
 - Un album consultable par les invités après le mariage, sur décision des mariés.
 - Les polices et les bibliothèques hébergées dans le dépôt, pour un site sans appel externe.
 - Un préfixe de tables réglable, pour héberger plusieurs événements dans un même projet Supabase.

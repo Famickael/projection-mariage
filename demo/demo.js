@@ -2,9 +2,13 @@
    Fournit un faux client Supabase, limité à ce que les pages utilisent, avec des données fictives
    gardées en mémoire : rien n'est envoyé, et tout revient à l'état initial au rechargement. */
 (function () {
-  if (window.MARIAGE.supabase.url) return;
+  if (!window.MARIAGE) window.DONNEES_ILLISIBLES = true;   // lu par verifier.js
+  var M = window.MARIAGE = window.MARIAGE || {};
+  M.supabase = M.supabase || {};
+  if (M.supabase.url) return;
 
-  var J = window.MARIAGE.programme, jour = J.jourPrincipal, veille = J.premierJour;
+  function iso(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  var J = M.programme || {}, jour = J.jourPrincipal || J.premierJour || iso(new Date()), veille = J.premierJour || jour;
   function heure(h) { return jour + 'T' + h + ':00+00:00'; }
   function img(n) { return 'demo/photo-0' + n + '.svg'; }
   var compteur = 0;
@@ -103,6 +107,8 @@
     b.id = 'bandeau-demo';
     b.setAttribute('aria-label', 'Pages de la démonstration');
     b.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:50;background:#2a2426;color:#f3efe7;font:13px/1.4 system-ui,sans-serif;padding:6px 10px;text-align:center;display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center';
+    /* Sur la projection, le bandeau se range dans un coin pour ne recouvrir ni l'aide ni les photos. */
+    if (ici === 'projection.html') b.style.cssText += ';top:auto;right:auto;bottom:0;max-width:46vw;justify-content:flex-start;opacity:.85;font-size:12px';
     var t = document.createElement('span'); t.textContent = 'Démonstration, rien n\'est envoyé :'; t.style.opacity = '.75'; b.appendChild(t);
     pages.forEach(function (p) {
       var a = document.createElement('a'); a.href = p[0]; a.textContent = p[1];

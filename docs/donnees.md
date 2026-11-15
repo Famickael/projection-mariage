@@ -17,6 +17,8 @@ Le fichier définit un seul objet, `window.MARIAGE`, lu par les 4 pages.
 | `comptes` | Option : demander un compte pour la projection ou le programme | `false` pour les 2 |
 | `supabase` | Le branchement : `url`, `cle` et `bucket` | Vide, donc démonstration |
 
+Seules les rubriques `maries` et `supabase` sont nécessaires. Une autre rubrique absente retire simplement l'élément correspondant de la page. Sans la rubrique `programme`, le programme affiche 5 jours à partir de la date du jour.
+
 ## Un temps fort
 
 ```js
@@ -61,9 +63,9 @@ Avec `false`, la page s'ouvre sans compte. Avec `true`, elle affiche un écran d
 
 ## Vérifier le fichier
 
-Ajoutez `?verifier` à la fin de l'adresse de la page de dépôt. Un encadré, en haut de la page, liste les incohérences : prénoms manquants, icône inconnue, date mal écrite, jour principal hors période, adresse ou clé Supabase incomplète, clé `service_role` collée par erreur.
+Ajoutez `?verifier` à la fin de l'adresse de la page de dépôt. Un encadré, en haut de la page, liste les incohérences : prénoms manquants, icône inconnue, date mal écrite, jour principal hors période, adresse ou clé Supabase incomplète, clé secrète collée par erreur.
 
-Une erreur de syntaxe dans le fichier (virgule ou guillemet manquant) empêche la page de s'afficher. Elle se lit dans la console du navigateur.
+Avec une erreur de syntaxe dans le fichier (virgule ou guillemet manquant), l'encadré annonce un fichier illisible. Le détail se lit dans la console du navigateur.
 
 ---
 

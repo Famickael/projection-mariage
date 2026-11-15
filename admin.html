@@ -97,6 +97,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 const M = window.MARIAGE;
+M.maries = M.maries || [];
 const DEMO = !M.supabase.url;   // sans adresse Supabase dans donnees.js, la page tourne en démonstration
 const CONFIG = { SUPABASE_URL: M.supabase.url, SUPABASE_ANON_KEY: M.supabase.cle, BUCKET: M.supabase.bucket || 'mariage' };
 const sb = DEMO ? window.clientDemo() : window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
@@ -126,15 +127,11 @@ async function charger(){
   if (!envois.length) { cont.innerHTML = '<p class="vide">Aucun envoi pour le moment.</p>'; return; }
   for (const e of envois) {
     const sec = document.createElement('section'); sec.className = 'envoi';
-    sec.innerHTML = `<header><h2>${echap(e.invite_nom || 'Invité anonyme')} <button class="lien-modif" data-modif-nom>modifier</button></h2><span class="date">${dateFr(e.created_at)} · ${e.appareil || ''}</span><span class="actions-envoi"><button class="interrupteur ${e.visible !== false ? 'actif' : ''}" data-vis-envoi>${e.visible !== false ? 'Projeté' : 'Non projeté'}</button><button class="btn secondaire" data-suppr-envoi>Supprimer l'envoi</button></span></header>`
-      + `<div class="mot-ligne">${e.message ? `<div class="mot">${echap(e.message)}</div>` : '<span class="msg">Pas de mot global.</span>'}<button class="lien-modif" data-modif-mot>${e.message ? 'modifier' : 'ajouter'}</button></div>`;
+    sec.innerHTML = `<header><h2>${echap(e.invite_nom || 'Invité anonyme')} <button class="lien-modif" data-modif-nom>modifier</button></h2><span class="date">${dateFr(e.created_at)} · ${echap(e.appareil || '')}</span><span class="actions-envoi"><button class="interrupteur ${e.visible !== false ? 'actif' : ''}" data-vis-envoi>${e.visible !== false ? 'Projeté' : 'Non projeté'}</button><button class="btn secondaire" data-suppr-envoi>Supprimer l'envoi</button></span></header>`
+
     sec.querySelector('[data-modif-nom]').onclick = async () => {
       const v = prompt('Nom de l\'invité affiché à la projection :', e.invite_nom || ''); if (v === null) return;
       const { error } = await sb.from('envois').update({ invite_nom: v.trim() || null }).eq('id', e.id); if (error) { alert(error.message); return; } charger();
-    };
-    sec.querySelector('[data-modif-mot]').onclick = async () => {
-      const v = prompt('Mot global de l\'invité (vide pour le retirer de la projection) :', e.message || ''); if (v === null) return;
-      const { error } = await sb.from('envois').update({ message: v.trim() || null }).eq('id', e.id); if (error) { alert(error.message); return; } charger();
     };
     sec.querySelector('[data-vis-envoi]').onclick = async () => {
       const vis = e.visible === false;
@@ -182,7 +179,7 @@ async function charger(){
         act.append(dl, sup); carte.append(ap, infos, ligne2, act); gal.appendChild(carte);
       });
       sec.appendChild(gal);
-    } else sec.insertAdjacentHTML('beforeend', '<p class="msg">Mot seul, sans fichier.</p>');
+    } else sec.insertAdjacentHTML('beforeend', '<p class="msg">Envoi sans fichier.</p>');
     cont.appendChild(sec);
   }
 }
@@ -212,17 +209,20 @@ function fermerVis(){ $('#visionneuse').hidden = true; $('#vis-contenu').innerHT
 $('#btn-zip').onclick = async () => {
   const btn = $('#btn-zip'); btn.disabled = true;
   const zip = new JSZip(); let n = 0, total = envois.reduce((a, e) => a + e.fichiers.length, 0);
-  const lignes = [['Date', 'Invité', 'Appareil', 'Mot global', 'Fichier', 'Mot fichier']];
+  const lignes = [['Date', 'Invité', 'Appareil', 'Fichier', 'Mot']];
   for (const e of envois) {
+    const pris = new Set();
     const dossier = zip.folder(`${e.created_at.slice(0, 16).replace(/[:T]/g, '-')}_${(e.invite_nom || 'anonyme').replace(/[^\w-]+/g, '_')}`);
-    if (e.message) dossier.file('mot.txt', e.message);
-    if (!e.fichiers.length) lignes.push([e.created_at, e.invite_nom || '', e.appareil || '', e.message || '', '', '']);
+    if (!e.fichiers.length) lignes.push([e.created_at, e.invite_nom || '', e.appareil || '', '', '']);
     for (const f of e.fichiers) {
-      lignes.push([e.created_at, e.invite_nom || '', e.appareil || '', e.message || '', f.nom_original, f.message || '']);
+      lignes.push([e.created_at, e.invite_nom || '', e.appareil || '', f.nom_original, f.message || '']);
       $('#info').textContent = `Préparation du zip : ${++n} / ${total}`;
       const { data, error } = await sb.storage.from(CONFIG.BUCKET).download(f.chemin);
       if (error) { dossier.file(f.nom_original + '.ERREUR.txt', error.message); continue; }
-      dossier.file(f.nom_original, data);
+      /* 2 fichiers de même nom dans un envoi : le second est suffixé au lieu d'écraser le premier */
+      let nom = f.nom_original; for (let k = 2; pris.has(nom.toLowerCase()); k++) nom = f.nom_original.replace(/(\.[^.]*)?$/, `_${k}$1`);
+      pris.add(nom.toLowerCase());
+      dossier.file(nom, data);
     }
   }
   zip.file('recapitulatif.csv', csv(lignes));
@@ -233,15 +233,15 @@ $('#btn-zip').onclick = async () => {
 };
 
 $('#btn-csv').onclick = () => {
-  const lignes = [['Date', 'Invité', 'Appareil', 'Mot global', 'Fichier', 'Mot fichier']];
+  const lignes = [['Date', 'Invité', 'Appareil', 'Fichier', 'Mot']];
   for (const e of envois) {
-    if (!e.fichiers.length) lignes.push([e.created_at, e.invite_nom || '', e.appareil || '', e.message || '', '', '']);
-    for (const f of e.fichiers) lignes.push([e.created_at, e.invite_nom || '', e.appareil || '', e.message || '', f.nom_original, f.message || '']);
+    if (!e.fichiers.length) lignes.push([e.created_at, e.invite_nom || '', e.appareil || '', '', '']);
+    for (const f of e.fichiers) lignes.push([e.created_at, e.invite_nom || '', e.appareil || '', f.nom_original, f.message || '']);
   }
   telecharger(new Blob(['\ufeff' + csv(lignes)], { type: 'text/csv;charset=utf-8' }), 'mots-invites.csv');
 };
 
-function csv(l){ return l.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(';')).join('\r\n'); }
+function csv(l){ return l.map(r => r.map(v => '"' + String(v).replace(/^([=+\-@\t\r])/, "'$1").replace(/"/g, '""') + '"').join(';')).join('\r\n'); }
 function telecharger(blob, nom){ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nom; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 60000); }
 function dateFr(iso){ return new Date(iso).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' }); }
 function taille(o){ return o < 1048576 ? (o/1024).toFixed(0) + ' Ko' : o < 1073741824 ? (o/1048576).toFixed(1) + ' Mo' : (o/1073741824).toFixed(2) + ' Go'; }

@@ -66,7 +66,7 @@
   .liste .carte .t .tag.ensuite{color:var(--bordeaux)}
   .liste .carte .m{font-size:.85rem;color:var(--encre-douce);font-style:italic}
   .liste .carte .d{font-size:.95rem;margin-top:4px;white-space:pre-wrap}
-  .liste .carte.verrouille .t::after{content:" 🔒";font-size:.75rem}
+  .liste .carte.verrouille .t::after{content:" · figé";font-size:.75rem;font-style:italic;color:var(--bordeaux)}
 
   /* maintenant */
   .maintenant{border:3px double var(--bordeaux);padding:12px 16px;margin:14px 0;background:#fff7;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:baseline}
@@ -101,7 +101,7 @@
   .planning .moment .d{font-size:.85rem;color:var(--encre);white-space:pre-wrap;margin-top:2px}
   .planning .moment.libre{border-left-color:var(--encre-douce);cursor:grab;touch-action:none}
   .planning .moment.libre::after{content:"⋮⋮";position:absolute;right:6px;top:4px;color:var(--feuille);font-size:.8rem;letter-spacing:-2px}
-  .planning .moment.verrouille .t::after{content:" 🔒";font-size:.7rem}
+  .planning .moment.verrouille .t::after{content:" · figé";font-size:.7rem;font-style:italic}
   .planning .moment.passe{opacity:.5}
   .planning .moment.encours{border-color:var(--ok);box-shadow:0 0 0 2px var(--ok)}
   .planning .moment.ensuite-tag .t::before{content:"ensuite · ";color:var(--bordeaux);font-variant:small-caps;letter-spacing:.06em;font-size:.75rem}
@@ -188,11 +188,17 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const M = window.MARIAGE;
+M.programme = M.programme || {};
+M.maries = M.maries || [];
 const DEMO = !M.supabase.url;   // sans adresse Supabase dans donnees.js, la page tourne en démonstration
 /* Les jours du programme vont de programme.premierJour à programme.dernierJour (donnees.js). */
 function joursDuProgramme(){
-  const jours = [], fin = new Date(M.programme.dernierJour + 'T12:00');
-  for (let d = new Date(M.programme.premierJour + 'T12:00'); d <= fin && jours.length < 14; d.setDate(d.getDate() + 1)) {
+  /* Sans dates valables dans donnees.js : la semaine en cours. */
+  const valide = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '') && !isNaN(new Date(v + 'T12:00'));
+  const debut = valide(M.programme.premierJour) ? new Date(M.programme.premierJour + 'T12:00') : new Date();
+  const fin = valide(M.programme.dernierJour) ? new Date(M.programme.dernierJour + 'T12:00') : new Date(debut.getTime() + 4 * 86400000);
+  const jours = [];
+  for (let d = new Date(debut); d <= fin && jours.length < 14; d.setDate(d.getDate() + 1)) {
     const l = d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' });
     jours.push([`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`, l.charAt(0).toUpperCase() + l.slice(1)]);
   }
@@ -202,7 +208,7 @@ const CONFIG = {
   SUPABASE_URL: M.supabase.url,
   SUPABASE_ANON_KEY: M.supabase.cle,
   JOURS: joursDuProgramme(),
-  FENETRE: [6, 30]   // heures affichées sur la barre du jour : 7h → 6h le lendemain
+  FENETRE: [6, 30]   // heures affichées sur la barre du jour : de 6h à 6h le lendemain
 };
 const sb = DEMO ? window.clientDemo() : window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 const $ = s => document.querySelector(s);
@@ -246,6 +252,8 @@ function minutes(it){ const [h, m] = it.debut.split(':').map(Number); return (h 
 function jourLogique(it){ const [h] = it.debut.split(':').map(Number); if (h >= 6) return it.jour; const d = new Date(it.jour + 'T12:00'); d.setDate(d.getDate() - 1); return dateISO(d); }
 function minutesMaintenant(){ const n = maintenant(); const h = n.getHours(); return (h < 6 ? h + 24 : h) * 60 + n.getMinutes(); }
 function fmtH(min){ const h = Math.floor(min / 60) % 24, m = min % 60; return `${h}h${String(m).padStart(2,'0')}`; }
+/* La couleur vient de la base : seules les valeurs prévues sont acceptées dans le nom de classe. */
+function couleurSure(c){ return ['gris', 'bordeaux', 'petale', 'feuille', 'encre', 'vert', 'ok'].includes(c) ? c : 'gris'; }
 function fmtDuree(m){ return m < 60 ? `${m} min` : `${Math.floor(m/60)}h${m % 60 ? String(m % 60).padStart(2,'0') : ''}`; }
 
 /* ---------- données ---------- */
@@ -281,7 +289,7 @@ function rendre(){
     ? `<div class="h">${fmtH(n.getHours()*60 + n.getMinutes())}</div>
        <div class="encours">${phaseCourante ? `<span class="caps" style="font-size:.85rem;color:var(--encre-douce)">${echap(phaseCourante.titre)}</span><br>` : ''}${enCours.length ? 'En cours : <b>' + enCours.map(i => echap(i.titre)).join('</b>, <b>') + '</b>' : 'Rien de programmé en ce moment.'}</div>
        <div class="ensuite">${ensuite ? `Ensuite : ${echap(ensuite.titre)} à ${fmtH(minutes(ensuite))}, dans ${fmtDuree(minutes(ensuite) - nowMin)}.` : 'Plus rien de prévu pour ce jour.'}</div>
-       ${simule ? `<div class="simule">Heure simulée (${simule}). Retirer ?t= de l'adresse pour l'heure réelle.</div>` : ''}`
+       ${simule ? `<div class="simule">Heure simulée (${echap(simule)}). Retirer ?t= de l'adresse pour l'heure réelle.</div>` : ''}`
     : `<div class="h">${CONFIG.JOURS.find(j => j[0] === jourActif)[1]}</div><div class="encours">${liste.length ? `${moments.length} moment${moments.length > 1 ? 's' : ''} programmé${moments.length > 1 ? 's' : ''}` : 'Rien de programmé.'}</div><div class="ensuite">${auj < jourActif ? 'À venir. Le curseur « maintenant » et le suivi en direct apparaîtront ce jour-là.' : auj > jourActif ? 'Passé.' : ''}</div>`;
 
   if (vue === null) vue = TACTILE ? 'liste' : 'planning';
@@ -313,8 +321,8 @@ function rendrePlanning(liste, moments, estAuj, nowMin){
     lignes += `<div class="ligne-h${pleine ? '' : ' ligne-inter'}" style="top:${yDe(m)}px"></div>`;
   }
   // phases (colonne gauche) + ombres sur la colonne des moments
-  const ph = phases.map(p => `<div class="phase c-${p.couleur || 'gris'}" data-id="${p.id}" style="top:${yDe(minutes(p)) + 1}px;height:${Math.max(26, p.duree * PX - 2)}px" title="${echap(p.titre)}">${echap(p.titre)}<small>${fmtH(minutes(p))} – ${fmtH(minutes(p)+p.duree)}</small></div>`).join('');
-  const ombres = phases.map(p => `<div class="ombre c-${p.couleur || 'gris'}" style="top:${yDe(minutes(p))}px;height:${p.duree * PX}px"></div>`).join('');
+  const ph = phases.map(p => `<div class="phase c-${couleurSure(p.couleur)}" data-id="${p.id}" style="top:${yDe(minutes(p)) + 1}px;height:${Math.max(26, p.duree * PX - 2)}px" title="${echap(p.titre)}">${echap(p.titre)}<small>${fmtH(minutes(p))} à ${fmtH(minutes(p)+p.duree)}</small></div>`).join('');
+  const ombres = phases.map(p => `<div class="ombre c-${couleurSure(p.couleur)}" style="top:${yDe(minutes(p))}px;height:${p.duree * PX}px"></div>`).join('');
   // moments : répartition en couloirs si chevauchement
   const couloirs = []; const place = new Map();
   for (const m of moments) {

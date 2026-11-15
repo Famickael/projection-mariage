@@ -16,7 +16,7 @@ window.MARIAGE = {
   date: "Samedi 12 juin 2027",
   photoCouple: "couple.svg",          // image carrée de préférence ; "" pour ne rien afficher
 
-  /* Un à trois temps forts. Icônes : eglise, mairie, verres, repas, coeur. */
+  /* 1 à 3 temps forts. Icônes : eglise, mairie, verres, repas, coeur. */
   moments: [
     { icone: "eglise", titre: "Cérémonie", lignes: ["à 15h00", "à l'église de Saint-Aubrin"] },
     { icone: "verres", titre: "Vin d'honneur", lignes: ["après la cérémonie", "au domaine des Tilleuls", "à Valmont-sur-Brume"] }

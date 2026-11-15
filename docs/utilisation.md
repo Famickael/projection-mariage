@@ -11,13 +11,13 @@
 
 ## Le dépôt des souvenirs
 
-L'invité indique son nom, choisit des fichiers et peut écrire un mot sous chacun. L'envoi se fait par morceaux : après une coupure de réseau, il reprend là où il s'était arrêté. Si un fichier échoue, un nouveau clic sur « Envoyer » ne renvoie que celui-là.
+L'invité indique son nom, choisit des fichiers et peut écrire un mot sous chacun. L'envoi se fait par morceaux. Après une courte coupure de réseau, il reprend là où il s'était arrêté : 5 tentatives sont faites, sur 20 secondes environ. Au-delà, le fichier est marqué en échec, et un nouveau clic sur « Envoyer » ne renvoie que les fichiers en échec, depuis leur début.
 
 La page n'affiche aucun envoi, ni ceux des autres invités, ni ceux de la personne qui dépose.
 
 ## L'administration
 
-Chaque envoi et chaque fichier a un interrupteur « Projeté ». Un clic le retire de la projection sans le supprimer. Le nom de l'invité et les mots peuvent être corrigés. Une suppression est définitive.
+Chaque envoi et chaque fichier a un interrupteur « Projeté ». Un clic le retire de la projection sans le supprimer. Le nom de l'invité et le mot de chaque fichier peuvent être corrigés. Une suppression est définitive.
 
 ## La projection
 
@@ -48,7 +48,7 @@ Ouvrez `projection.html` sur l'ordinateur relié à l'écran, puis passez en ple
 ## Après le mariage
 
 1. **Téléchargez l'archive** avec « Tout télécharger (zip) » dans l'administration, puis ouvrez le fichier pour vérifier qu'il est complet.
-2. **Fermez le dépôt** en exécutant [`supabase/fermeture.sql`](../supabase/fermeture.sql) dans l'éditeur SQL de Supabase.
+2. **Fermez le dépôt** en exécutant [`supabase/fermeture.sql`](../supabase/fermeture.sql) dans l'éditeur SQL de Supabase. La page de dépôt reste en ligne mais tout envoi échoue : retirez aussi le QR code, ou dépubliez le site.
 3. **Conservez l'archive à 2 endroits**, puis supprimez les souvenirs de Supabase quand ils ne servent plus.
 
 Le zip est préparé dans la mémoire du navigateur. Pour plusieurs centaines de Mo, un ordinateur est préférable à un téléphone.

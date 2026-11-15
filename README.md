@@ -2,7 +2,7 @@
 
 Un modèle de site web pour les personnes qui organisent un mariage : les invités déposent leurs photos, leurs vidéos et leurs mots, et le tout est projeté en continu pendant la soirée.
 
-Le site réunit 4 pages, chacune pour un public. La page de dépôt est **optimisée pour le smartphone** : elle s'ouvre pendant la fête avec un QR code posé sur les tables, sans compte ni application. La projection tourne sur l'ordinateur relié à l'écran de la salle.
+Le site réunit 4 pages, chacune pour un public. La page de dépôt est **optimisée pour le smartphone** : elle s'ouvre pendant la fête avec un QR code (un code à photographier, qui mène à la page) posé sur les tables, sans compte ni application. La projection tourne sur l'ordinateur relié à l'écran de la salle.
 
 | Page | Pour qui | Rôle | Démonstration |
 |---|---|---|---|
@@ -31,11 +31,11 @@ L'exemple fourni est le mariage de Camille et Antonin. **Toutes les données son
 | Fonction | Description |
 |---|---|
 | Dépôt sans compte | Un nom, des fichiers, un mot facultatif par fichier |
-| Gros fichiers | Envoi par morceaux, avec reprise après une coupure de réseau et temps restant affiché |
+| Gros fichiers | Envoi par morceaux, avec reprise après une courte coupure de réseau et temps restant affiché |
 | Modération | Chaque envoi et chaque fichier peut être retiré de la projection, corrigé ou supprimé |
 | Projection | Photos et vidéos mélangées, avec le mot et le nom de l'invité. Un nouvel envoi passe en priorité |
 | Coupure de réseau | Les médias sont gardés en mémoire, la projection continue hors ligne |
-| Archive | Téléchargement de tous les souvenirs en un fichier zip, et export des mots en CSV |
+| Archive | Téléchargement de tous les souvenirs en un fichier zip, et export des mots dans un fichier CSV, lisible par un tableur |
 | Programme | Moments déplaçables, moments verrouillés, phases de la journée, repère de l'heure en cours |
 | Démonstration | Sans aucun réglage, les 4 pages s'ouvrent avec un contenu fictif et rien n'est envoyé |
 

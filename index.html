@@ -222,7 +222,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
 <script>
-const M = window.MARIAGE;
+const M = window.MARIAGE || {};
+M.maries = M.maries || [];
+M.supabase = M.supabase || {};
 const DEMO = !M.supabase.url;   // sans adresse Supabase dans donnees.js, la page tourne en démonstration
 /* Les textes et l'adresse Supabase se règlent dans donnees.js. Ici, seulement les réglages techniques de l'envoi. */
 const CONFIG = {
@@ -257,12 +259,14 @@ const ICONES = {
   $('#t-phrase').textContent = M.phrase || '';
   $('#t-date').textContent = M.date || '';
   if (M.photoCouple) $('#photo-couple').style.backgroundImage = `url("${encodeURI(M.photoCouple)}")`;
-  $('#t-moments').innerHTML = (M.moments || []).map(m =>
-    `<div><svg viewBox="0 0 48 48">${ICONES[m.icone] || ICONES.coeur}</svg><span class="script">${echap(m.titre)}</span><p class="caps">${(m.lignes || []).map(echap).join('<br>')}</p></div>`
+  $('#t-moments').innerHTML = (Array.isArray(M.moments) ? M.moments : []).filter(m => m && typeof m === 'object').map(m =>
+    `<div><svg viewBox="0 0 48 48">${ICONES[m.icone] || ICONES.coeur}</svg><span class="script">${echap(m.titre || '')}</span><p class="caps">${(m.lignes || []).map(echap).join('<br>')}</p></div>`
   ).join('<div class="filet"></div>');
-  $('#t-moments').hidden = !(M.moments || []).length;
-  $('#t-encart-titre').textContent = M.encart.titre;
-  $('#t-encart-texte').innerHTML = M.encart.lignes.map(echap).join('<br>');
+  $('#t-moments').hidden = !$('#t-moments').children.length;
+  const encart = M.encart || {};
+  $('#t-encart-titre').textContent = encart.titre || '';
+  $('#t-encart-texte').innerHTML = (encart.lignes || []).map(echap).join('<br>');
+  document.querySelector('.cartouche').hidden = !encart.titre && !(encart.lignes || []).length;
 })();
 
 function montrer(nom){
