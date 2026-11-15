@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Projection</title>
+<link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{--papier:#f3efe7;--papier-fonce:#e9e2d6;--bordeaux:#9a2e3c;--bordeaux-fonce:#7d2431;--encre:#2a2426;--encre-douce:#6b6062;--feuille:#c4b295;--petale:#d98a93}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--papier);color:var(--encre);font-family:"Cormorant Garamond",Georgia,serif;overflow:hidden}
+  body{background-image:radial-gradient(circle at 20% 10%,rgba(255,255,255,.6),transparent 45%),radial-gradient(circle at 80% 90%,rgba(196,178,149,.22),transparent 50%)}
+  body.plein{cursor:none}
+  .script{font-family:"Sacramento",cursive;color:var(--bordeaux);font-weight:400;line-height:1}
+  .caps{font-variant:small-caps;letter-spacing:.16em;font-weight:500}
+
+  /* connexion */
+  #login{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+  #login[hidden]{display:none}
+  #login form{width:min(380px,90vw)}
+  #login h1{font-size:3.4rem;margin:0 0 4px;text-align:center}
+  label{display:block;font-variant:small-caps;letter-spacing:.1em;font-weight:600;font-size:1rem;margin:14px 0 4px}
+  input{font:inherit;font-size:1.05rem;padding:8px;border:0;border-bottom:1.5px solid var(--feuille);background:#fff9;width:100%}
+  .btn{font:inherit;font-variant:small-caps;letter-spacing:.14em;font-weight:600;font-size:1.05rem;cursor:pointer;border:2px solid var(--bordeaux);background:var(--bordeaux);color:#fff;padding:10px 22px;margin-top:18px}
+  .err{color:var(--bordeaux);font-style:italic}
+
+  /* scène */
+  #scene{position:absolute;inset:0}
+  #scene[hidden]{display:none}
+  .coin{position:absolute;width:26vmin;height:26vmin;opacity:.9;pointer-events:none}
+  .coin.hg{top:-3vmin;left:-3vmin}
+  .coin.bd{bottom:-3vmin;right:-3vmin;transform:rotate(180deg)}
+  .bandeau{position:absolute;left:0;right:0;bottom:1vmin;text-align:center;pointer-events:none}
+  .bandeau .script{font-size:3vmin}
+  .bandeau .caps{font-size:1.3vmin;color:var(--encre-douce);display:inline-block;margin-left:1.5vmin}
+
+  /* pile de photos */
+  #diapos{position:absolute;inset:1.5vmin 2vmin 7vmin;display:flex;align-items:center;justify-content:center}
+  .diapo{position:absolute;max-width:100%;max-height:100%;display:flex;align-items:center;justify-content:center;
+    opacity:0;transform:translate(var(--dx,0),var(--dy,0)) rotate(var(--rot,0deg)) scale(1.06);
+    transition:opacity .7s ease,transform .9s cubic-bezier(.2,.8,.2,1),filter 1.2s ease}
+  .diapo.visible{opacity:1;transform:translate(var(--dx,0),var(--dy,0)) rotate(var(--rot,0deg)) scale(1)}
+  .diapo.dessous{filter:brightness(.82) saturate(.8);transition:filter 1.2s ease,opacity 1.2s ease}
+  .diapo.sortie{opacity:0}
+  /* photo au format réel, bord papier + filet bordeaux */
+  .cadre{position:relative;background:#fff;padding:.8vmin;box-shadow:0 1.2vmin 4vmin rgba(42,36,38,.35),0 .2vmin .6vmin rgba(42,36,38,.25);
+    max-width:calc(100vw - 4vmin);max-height:calc(100vh - 8.5vmin)}
+  .cadre .media{position:relative;outline:.35vmin solid var(--bordeaux);outline-offset:-.35vmin;background:var(--papier-fonce);line-height:0}
+  .cadre img,.cadre video{display:block;max-width:calc(100vw - 6vmin);max-height:calc(100vh - 10.5vmin);width:auto;height:auto;object-fit:contain}
+  .cadre img{min-width:40vmin;min-height:30vmin}
+  .cadre video{min-width:60vmin;min-height:34vmin}
+  /* légende sur la photo, en bas à droite */
+  .legende{position:absolute;right:1.6vmin;bottom:1.6vmin;max-width:min(50%,60vmin);background:rgba(255,255,255,.9);padding:.9vmin 1.4vmin .8vmin;
+    text-align:right;box-shadow:0 .3vmin 1.2vmin rgba(0,0,0,.25);border-left:.4vmin solid var(--bordeaux)}
+  .legende .mot{font-size:2.3vmin;font-style:italic;color:var(--encre);line-height:1.3;white-space:pre-wrap;margin-bottom:.4vmin;max-height:22vh;overflow:hidden}
+  .legende .qui{font-size:1.5vmin;color:var(--encre-douce);line-height:1.7;margin-top:.8vmin}
+  .legende .qui .nom{font-family:"Sacramento",cursive;color:var(--bordeaux);font-size:2.8vmin;margin-left:.6vmin;letter-spacing:0;font-variant:normal}
+  .attente{position:static;width:80vw}
+  #aide{position:absolute;top:1vmin;left:0;right:0;text-align:center;font-size:1.5vmin;color:var(--encre-douce);opacity:.6;pointer-events:none}
+  body.plein #aide{display:none}
+  #pause{display:none;position:absolute;top:2vmin;right:2vmin;font-variant:small-caps;letter-spacing:.14em;font-size:1.8vmin;background:var(--bordeaux);color:#fff;padding:.4vmin 1.4vmin}
+  body.enpause #pause{display:block}
+  #etat-cache{position:absolute;right:1.5vmin;bottom:1.2vmin;font-size:1.2vmin;font-style:italic;color:var(--encre-douce);opacity:.7}
+  #etat-cache.hors{color:var(--bordeaux);opacity:1}
+  @media (prefers-reduced-motion:reduce){.diapo{transition:none}}
+</style>
+</head>
+<body>
+
+<section id="login">
+  <form id="form-login">
+    <h1 class="script">Projection</h1>
+    <p class="caps" style="text-align:center;margin:0">Accès organisateur</p>
+    <label for="email">E-mail</label><input id="email" type="email" autocomplete="username">
+    <label for="mdp">Mot de passe</label><input id="mdp" type="password" autocomplete="current-password">
+    <p style="text-align:center"><button class="btn" type="submit">Lancer la projection</button></p>
+    <p class="err" id="login-err"></p>
+  </form>
+</section>
+
+<section id="scene" hidden>
+  <svg class="coin hg" viewBox="0 0 200 200" aria-hidden="true">
+    <g stroke="var(--feuille)" stroke-width="1" fill="var(--feuille)" fill-opacity=".5">
+      <path d="M40 60 q-30 10 -34 42 q30 -6 34 -42z"/><path d="M58 46 q-34 -6 -52 22 q32 8 52 -22z"/><path d="M110 30 q-28 -14 -58 0 q28 18 58 0z"/>
+    </g>
+    <g fill="var(--petale)" fill-opacity=".8"><circle cx="78" cy="24" r="11"/><circle cx="92" cy="32" r="8"/><circle cx="68" cy="36" r="7"/></g>
+    <g fill="var(--bordeaux)" fill-opacity=".7"><circle cx="122" cy="16" r="3"/><circle cx="134" cy="26" r="2.5"/></g>
+  </svg>
+  <svg class="coin bd" viewBox="0 0 200 200" aria-hidden="true">
+    <g stroke="var(--feuille)" stroke-width="1" fill="var(--feuille)" fill-opacity=".5">
+      <path d="M40 60 q-30 10 -34 42 q30 -6 34 -42z"/><path d="M58 46 q-34 -6 -52 22 q32 8 52 -22z"/><path d="M110 30 q-28 -14 -58 0 q28 18 58 0z"/>
+    </g>
+    <g fill="var(--petale)" fill-opacity=".8"><circle cx="78" cy="24" r="11"/><circle cx="92" cy="32" r="8"/><circle cx="68" cy="36" r="7"/></g>
+    <g fill="var(--bordeaux)" fill-opacity=".7"><circle cx="122" cy="16" r="3"/><circle cx="134" cy="26" r="2.5"/></g>
+  </svg>
+
+  <div id="diapos"></div>
+
+  <div class="bandeau"><span class="script" id="t-maries"></span><span class="caps" id="t-adresse"></span></div>
+  <div id="aide">F plein écran · espace pause · ← → naviguer · V vidéos oui/non · R recharger</div>
+  <div id="pause">Pause</div>
+  <div id="etat-cache"></div>
+</section>
+
+<script src="donnees.js"></script>
+<script src="demo/demo.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const M = window.MARIAGE;
+const DEMO = !M.supabase.url;   // sans adresse Supabase dans donnees.js, la page tourne en démonstration
+const CONFIG = {
+  SUPABASE_URL: M.supabase.url,
+  SUPABASE_ANON_KEY: M.supabase.cle,
+  BUCKET: M.supabase.bucket || 'mariage',
+  DUREE_PHOTO: 9000, DUREE_MOT: 11000, DUREE_VIDEO_MAX: 45000,
+  RAFRAICHIR: 20000,
+  LARGEUR_IMAGE: 1600
+};
+const sb = DEMO ? window.clientDemo() : window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+const $ = s => document.querySelector(s);
+const NOMS = M.maries.join(' et ');
+/* Adresse affichée à l'écran pour que les invités retrouvent la page de dépôt. */
+const ADRESSE = M.adresseSite || (location.host + location.pathname.replace(/[^/]*$/, '')).replace(/\/$/, '');
+document.title = NOMS + ' · Projection';
+$('#t-maries').textContent = NOMS; $('#t-adresse').textContent = ADRESSE;
+
+let items = [];            // tous les éléments projetables, dans l'ordre de passage
+let connus = new Set();    // ids déjà vus (pour détecter les nouveautés)
+let file = [];             // ordre de lecture courant
+let nouveaux = [];         // éléments arrivés pendant la soirée, à passer en priorité
+let position = -1, timer = null, enPause = false, avecVideos = true, premierChargement = true, courant = null;
+
+/* ---------- connexion ---------- */
+$('#form-login').addEventListener('submit', async e => {
+  e.preventDefault(); $('#login-err').textContent = '';
+  const { error } = await sb.auth.signInWithPassword({ email: $('#email').value.trim(), password: $('#mdp').value });
+  if (error) { $('#login-err').textContent = 'Connexion refusée : ' + error.message; return; }
+  demarrer();
+});
+sb.auth.getSession().then(async ({ data }) => {
+  if (data.session) demarrer();   // sinon, l'écran de connexion reste affiché
+});
+
+async function demarrer(){
+  $('#login').hidden = true; $('#scene').hidden = false;
+  await charger();
+  setInterval(charger, CONFIG.RAFRAICHIR);
+  suivant();
+}
+
+/* ---------- données ---------- */
+const cache = new Map(); let octetsCache = 0;
+async function charger(){
+  let data, error;
+  try { ({ data, error } = await sb.from('envois').select('*, fichiers(*)').order('created_at', { ascending: true })); }
+  catch (e) { error = e; }
+  if (error) { console.warn('hors ligne, on continue avec la mémoire', error.message || error); majEtatCache(items, true); return; }
+  const liste = [];
+  const fichiersImg = [];
+  for (const e of data) {
+    if (e.visible === false) continue;
+    const nom = e.invite_nom || 'Un invité';
+    for (const f of e.fichiers) {
+      if (f.visible === false) continue;
+      const t = f.type_mime || '';
+      if (t.startsWith('image/')) { const it = { id: 'f-' + f.id, type: 'photo', nom, texte: f.message, chemin: f.chemin, date: f.created_at }; liste.push(it); fichiersImg.push(it); }
+      else if (t.startsWith('video/')) liste.push({ id: 'f-' + f.id, type: 'video', nom, texte: f.message, chemin: f.chemin, date: f.created_at });
+    }
+  }
+  // URLs signées (12 h), images redimensionnées et converties (HEIC compris) par Supabase
+  const media = liste.filter(i => i.chemin);
+  if (media.length) {
+    const { data: signes } = await sb.storage.from(CONFIG.BUCKET).createSignedUrls(media.map(i => i.chemin), 43200);
+    media.forEach((i, k) => { i.url = signes && signes[k] ? signes[k].signedUrl : null; });
+    for (const i of fichiersImg) {
+      try { const { data: d } = await sb.storage.from(CONFIG.BUCKET).createSignedUrl(i.chemin, 43200, { transform: { width: CONFIG.LARGEUR_IMAGE, quality: 80 } }); if (d) i.urlImg = d.signedUrl; } catch {}
+    }
+  }
+  // Mise en mémoire en arrière-plan : la projection démarre tout de suite, les médias se téléchargent un par un.
+  liste.forEach(i => { if (cache.has(i.id)) i.local = cache.get(i.id); });
+  precharger(liste);
+  majEtatCache(liste);
+  const arrives = liste.filter(i => !connus.has(i.id));
+  liste.forEach(i => connus.add(i.id));
+  // ne garder en projection que ce qui est en mémoire (ou atteignable en ligne)
+  items = liste;
+  if (premierChargement) { premierChargement = false; file = melanger(items); }
+  else if (!file.length && items.length) file = melanger(items);
+  else if (arrives.length) { arrives.forEach(i => { i.nouveau = true; }); nouveaux.push(...arrives); }
+  // retirer de la file ce qui n'est plus projetable
+  const ids = new Set(items.map(i => i.id));
+  file = file.filter(i => ids.has(i.id)).map(i => items.find(x => x.id === i.id));
+}
+
+let prechargeEnCours = false;
+async function precharger(liste){
+  if (prechargeEnCours) return; prechargeEnCours = true;
+  // photos d'abord (rapides), vidéos ensuite
+  const aFaire = [...liste.filter(i => i.type === 'photo'), ...liste.filter(i => i.type === 'video')].filter(i => !i.local && i.url);
+  for (const i of aFaire) {
+    try {
+      const src = i.type === 'photo' && i.urlImg ? i.urlImg : i.url;
+      let r = await fetch(src); if (!r.ok && i.urlImg) r = await fetch(i.url);
+      if (!r.ok) continue;
+      const b = await r.blob(); const u = URL.createObjectURL(b); cache.set(i.id, u); octetsCache += b.size;
+      const vivant = items.find(x => x.id === i.id); if (vivant) vivant.local = u; i.local = u;
+    } catch (e) { console.warn('cache', i.chemin, e); }
+    majEtatCache(items);
+  }
+  prechargeEnCours = false; majEtatCache(items);
+}
+function majEtatCache(liste, horsLigne){
+  const n = liste.filter(i => i.local).length, tot = liste.length;
+  const el = $('#etat-cache'); if (!el) return;
+  el.className = (horsLigne || !navigator.onLine) ? 'hors' : '';
+  el.textContent = `${n}/${tot} en mémoire (${(octetsCache/1048576).toFixed(0)} Mo)` + ((horsLigne || !navigator.onLine) ? ' · hors ligne, projection depuis la mémoire' : '');
+}
+window.addEventListener('offline', () => majEtatCache(items, true));
+window.addEventListener('online', () => { majEtatCache(items); charger(); });
+function melanger(a){ const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
+
+/* ---------- lecture ---------- */
+function prochain(){
+  if (!navigator.onLine) { const enMem = file.filter(i => i.local); if (enMem.length && enMem.length < file.length) { file = enMem; position = -1; } }
+  while (nouveaux.length) { const n = nouveaux.shift(); if (avecVideos || n.type !== 'video') { file.splice(position + 1, 0, n); return file[++position]; } }
+  if (!file.length) return null;
+  for (let k = 0; k < file.length; k++) {
+    position = (position + 1) % file.length;
+    if (position === 0) file = melanger(items);
+    const it = file[position];
+    if (it && (avecVideos || it.type !== 'video')) return it;
+  }
+  return null;
+}
+function precedent(){
+  if (!file.length) return null;
+  position = (position - 1 + file.length) % file.length;
+  return file[position];
+}
+
+function suivant(){ clearTimeout(timer); afficher(prochain()); }
+function afficher(it){
+  const cont = $('#diapos');
+  // la pile : on garde les 3 dernières sous la nouvelle, assombries ; les plus anciennes s'effacent
+  [...cont.children].forEach((el, i, arr) => {
+    el.classList.add('dessous');
+    if (arr.length - i > 3) { el.classList.add('sortie'); setTimeout(() => el.remove(), 1300); }
+  });
+  courant = it;
+  const d = document.createElement('div'); d.className = 'diapo';
+  if (!it) {
+    cont.innerHTML = '';
+    d.innerHTML = `<div class="attente"><span class="script">${echap(NOMS)}</span><span class="caps">Vos photos, vidéos et mots apparaîtront ici</span><span class="qr">${echap(ADRESSE)}</span></div>`;
+    cont.appendChild(d); requestAnimationFrame(() => d.classList.add('visible'));
+    timer = setTimeout(suivant, 8000); return;
+  }
+  const nouveau = ''; it.nouveau = false;
+  let duree = CONFIG.DUREE_PHOTO;
+  if (it.type === 'mot') {
+    duree = Math.min(CONFIG.DUREE_MOT + it.texte.length * 40, 25000);
+    d.innerHTML = nouveau + `<div class="carton"><span class="guill">“</span><div class="texte">${echap(it.texte)}</div><span class="signature script">${echap(it.nom)}</span></div>`;
+  } else {
+    const media = it.type === 'photo'
+      ? `<img src="${it.local || it.urlImg || it.url}" alt="" onerror="this.onerror=null;this.src='${it.url}'">`
+      : `<video src="${it.local || it.url}" autoplay muted playsinline></video>`;
+    d.innerHTML = `<div class="cadre"><div class="media">${media}
+        <div class="legende">${it.texte ? `<div class="mot">${echap(it.texte)}</div>` : ''}<div class="qui caps">déposé par<span class="nom">${echap(it.nom)}</span></div></div>
+      </div></div>`;
+    // légère rotation et décalage aléatoires, comme une photo posée sur la table
+    d.style.setProperty('--rot', ((Math.random() * 4) - 2).toFixed(2) + 'deg');
+    d.style.setProperty('--dx', ((Math.random() * 3) - 1.5).toFixed(2) + 'vmin');
+    d.style.setProperty('--dy', ((Math.random() * 3) - 1.5).toFixed(2) + 'vmin');
+    if (it.type === 'video') {
+      const v = d.querySelector('video');
+      v.addEventListener('ended', () => { if (!enPause) suivant(); });
+      v.addEventListener('error', () => suivant());
+      duree = CONFIG.DUREE_VIDEO_MAX;
+    }
+  }
+  cont.appendChild(d);
+  requestAnimationFrame(() => d.classList.add('visible'));
+  if (!enPause) timer = setTimeout(suivant, duree);
+}
+
+/* ---------- commandes ---------- */
+document.addEventListener('keydown', e => {
+  if (!$('#login').hidden) return;
+  switch (e.key) {
+    case 'f': case 'F': pleinEcran(); break;
+    case ' ': e.preventDefault(); enPause = !enPause; document.body.classList.toggle('enpause', enPause); if (enPause) clearTimeout(timer); else suivant(); break;
+    case 'ArrowRight': suivant(); break;
+    case 'ArrowLeft': clearTimeout(timer); afficher(precedent()); break;
+    case 'v': case 'V': avecVideos = !avecVideos; $('#aide').textContent = avecVideos ? 'Vidéos activées' : 'Vidéos désactivées'; setTimeout(() => $('#aide').textContent = 'F plein écran · espace pause · ← → naviguer · V vidéos oui/non · R recharger', 2000); break;
+    case 'r': case 'R': charger(); break;
+  }
+});
+$('#scene').addEventListener('dblclick', pleinEcran);
+function pleinEcran(){
+  if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(() => {}); }
+  else document.exitFullscreen();
+}
+document.addEventListener('fullscreenchange', () => document.body.classList.toggle('plein', !!document.fullscreenElement));
+function echap(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+</script>
+</body>
+</html>

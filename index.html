@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Partagez vos souvenirs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --papier:#f3efe7;
+    --papier-fonce:#e9e2d6;
+    --bordeaux:#9a2e3c;
+    --bordeaux-fonce:#7d2431;
+    --encre:#2a2426;
+    --encre-douce:#6b6062;
+    --feuille:#c4b295;
+    --petale:#d98a93;
+    --ok:#4d7a4b;
+    --col:600px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--papier);color:var(--encre);
+    font-family:"Cormorant Garamond",Georgia,serif;font-size:19px;line-height:1.5}
+  body{
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(255,255,255,.55), transparent 45%),
+      radial-gradient(circle at 80% 90%, rgba(196,178,149,.18), transparent 50%);
+    min-height:100vh;
+  }
+  main{max-width:var(--col);margin:0 auto;padding:40px 22px 60px}
+  section[hidden]{display:none}
+  .script{font-family:"Sacramento",cursive;color:var(--bordeaux);font-weight:400;line-height:1}
+  .caps{font-variant:small-caps;letter-spacing:.14em;font-weight:500}
+  h1.script{font-size:clamp(3.2rem,11vw,4.6rem);margin:18px 0 6px;text-align:center}
+  h2.script{font-size:clamp(2.4rem,8vw,3rem);margin:0 0 6px;text-align:center}
+  p{margin:.4em 0}
+
+  .octo-wrap{position:relative;width:min(300px,78vw);margin:0 auto}
+  .octo{clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);
+    background:var(--bordeaux);padding:6px}
+  .octo-inner{clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);
+    background:var(--papier);padding:5px}
+  .octo-photo{clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);
+    aspect-ratio:1;background:var(--papier-fonce) center/cover no-repeat;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    color:var(--encre-douce);font-style:italic;padding:20px}
+  .fleurs{position:absolute;inset:-34px;pointer-events:none}
+
+  .cartouche{border:3px double var(--bordeaux);padding:12px 18px;text-align:center;
+    margin:22px auto 0;max-width:460px}
+  .cartouche .caps{font-size:1.05rem}
+
+  .programme{display:flex;flex-wrap:wrap;justify-content:center;gap:22px;margin:34px 0 10px;text-align:center}
+  .programme > div:not(.filet){flex:1 1 150px;max-width:260px}
+  .programme .script{font-size:2rem;display:block}
+  .programme svg{width:44px;height:44px;stroke:var(--encre);fill:none;stroke-width:1.4;
+    stroke-linecap:round;stroke-linejoin:round;margin-bottom:6px}
+  .programme p{font-size:1rem;line-height:1.4}
+  .filet{width:1px;background:var(--encre);align-self:stretch;display:none}
+  @media (min-width:480px){ .filet{display:block;opacity:.5} }
+  .clin{font-style:italic;text-align:center;color:var(--encre-douce);margin:14px auto 0;max-width:440px}
+
+  .btn{font:inherit;font-variant:small-caps;letter-spacing:.14em;font-weight:600;font-size:1.05rem;
+    cursor:pointer;border:2px solid var(--bordeaux);background:var(--bordeaux);color:#fff;
+    padding:12px 26px;transition:background .15s,color .15s;display:inline-block;text-align:center}
+  .btn:hover{background:var(--bordeaux-fonce)}
+  .btn:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--petale);outline-offset:2px}
+  .btn.secondaire{background:transparent;color:var(--bordeaux)}
+  .btn.secondaire:hover{background:rgba(154,46,60,.08)}
+  .btn[disabled]{opacity:.5;cursor:not-allowed}
+  .centre{text-align:center}
+  .cta{margin-top:38px}
+  .cta p{color:var(--encre-douce);margin-bottom:12px}
+
+  .depot{margin:26px auto 0;width:min(300px,78vw)}
+  .depot .octo-photo{cursor:pointer;background:var(--papier-fonce);flex-direction:column;
+    color:var(--encre);font-style:normal;gap:6px;transition:background .15s}
+  .depot .octo-photo:hover,.depot.survol .octo-photo{background:#e2d8c6}
+  .depot .octo-photo svg{width:38px;height:38px;stroke:var(--bordeaux);fill:none;stroke-width:1.5;
+    stroke-linecap:round;stroke-linejoin:round}
+  .depot .octo-photo strong{font-weight:600;font-size:1.1rem}
+  .depot .octo-photo small{color:var(--encre-douce);font-size:.9rem;font-style:italic}
+  .depot input[type=file]{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+
+  form{margin-top:26px}
+  label{display:block;font-variant:small-caps;letter-spacing:.1em;font-weight:600;font-size:1rem;margin:16px 0 4px}
+  label small{font-variant:normal;letter-spacing:0;font-weight:400;color:var(--encre-douce);font-style:italic}
+  input[type=text],textarea{width:100%;font:inherit;font-size:1.05rem;color:var(--encre);
+    background:#fff9;border:0;border-bottom:1.5px solid var(--feuille);padding:8px 6px;resize:vertical}
+  input[type=text]:focus,textarea:focus{border-bottom-color:var(--bordeaux);background:#fff}
+
+  ul.fichiers{list-style:none;padding:0;margin:8px 0 0}
+  ul.fichiers li{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:start;
+    padding:12px 0;border-bottom:1px solid var(--papier-fonce)}
+  .vignette{width:64px;height:64px;object-fit:cover;background:var(--papier-fonce);
+    clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);
+    display:flex;align-items:center;justify-content:center;color:var(--bordeaux);
+    font-variant:small-caps;font-weight:600;font-size:.85rem;letter-spacing:.05em}
+  .fichier-nom{font-size:.95rem;word-break:break-word}
+  .fichier-nom span{color:var(--encre-douce);font-style:italic}
+  .fichier-msg{margin-top:4px;font-size:.95rem;padding:4px 6px;min-height:34px}
+  .retirer{background:none;border:0;color:var(--encre-douce);cursor:pointer;font:inherit;font-size:1.3rem;line-height:1;padding:2px 6px}
+  .retirer:hover{color:var(--bordeaux)}
+  .barre{height:3px;background:var(--papier-fonce);margin-top:6px;overflow:hidden}
+  .barre i{display:block;height:100%;width:0;background:var(--bordeaux);transition:width .2s}
+  .etat{font-size:.85rem;color:var(--encre-douce);font-style:italic;margin-top:2px}
+  .etat.ok{color:var(--ok)}
+  .etat.err{color:var(--bordeaux)}
+
+  .actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:28px}
+  .global-etat{text-align:center;margin-top:14px;font-style:italic;color:var(--encre-douce);min-height:1.5em}
+  .progression{margin:22px auto 0;max-width:460px}
+  .progression[hidden]{display:none}
+  .progression .etape{text-align:center;font-variant:small-caps;letter-spacing:.1em;font-weight:600;font-size:1rem}
+  .progression .barre{height:8px;margin-top:8px;background:var(--papier-fonce)}
+  .progression .barre i{transition:width .4s}
+  .progression .detail{display:flex;justify-content:space-between;font-size:.9rem;color:var(--encre-douce);font-style:italic;margin-top:6px}
+  .global-etat.err{color:var(--bordeaux)}
+  .bloc{margin-top:26px;padding-top:20px;border-top:1px solid var(--feuille)}
+
+  #done{text-align:center;padding-top:40px}
+  #done p{max-width:440px;margin:10px auto}
+  .compte{color:var(--encre-douce);font-style:italic;font-size:.95rem}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+
+<section id="home">
+  <div class="octo-wrap">
+    <svg class="fleurs" viewBox="0 0 368 368" aria-hidden="true">
+      <g stroke="var(--feuille)" stroke-width="1.2" fill="var(--feuille)" fill-opacity=".55">
+        <path d="M60 70 q-30 10 -34 42 q30 -6 34 -42z"/>
+        <path d="M78 56 q-34 -6 -52 22 q32 8 52 -22z"/>
+        <path d="M300 300 q30 -10 34 -42 q-30 6 -34 42z"/>
+        <path d="M284 316 q34 6 52 -22 q-32 -8 -52 22z"/>
+        <path d="M200 338 q-28 -14 -58 0 q28 18 58 0z"/>
+      </g>
+      <g fill="var(--petale)" fill-opacity=".8">
+        <circle cx="96" cy="44" r="12"/><circle cx="110" cy="52" r="9"/><circle cx="86" cy="56" r="8"/>
+        <circle cx="262" cy="324" r="12"/><circle cx="248" cy="316" r="9"/><circle cx="272" cy="312" r="8"/>
+      </g>
+      <g fill="var(--bordeaux)" fill-opacity=".7">
+        <circle cx="140" cy="36" r="3"/><circle cx="152" cy="46" r="2.5"/><circle cx="330" cy="240" r="3"/><circle cx="322" cy="256" r="2.5"/>
+      </g>
+    </svg>
+    <div class="octo"><div class="octo-inner">
+      <div class="octo-photo" id="photo-couple"></div>
+    </div></div>
+  </div>
+
+  <h1 class="script" id="t-maries"></h1>
+  <p class="centre caps" id="t-phrase"></p>
+  <h2 class="script" id="t-date"></h2>
+
+  <div class="programme" id="t-moments"></div>
+
+  <div class="cartouche">
+    <p class="caps" id="t-encart-titre"></p>
+    <p style="font-size:1rem;color:var(--encre-douce)" id="t-encart-texte"></p>
+  </div>
+
+  <div class="centre cta">
+    <button class="btn" id="btn-vers-envoi">Partager mes souvenirs</button>
+  </div>
+</section>
+
+<section id="upload" hidden>
+  <h2 class="script" style="font-size:clamp(2.6rem,9vw,3.4rem)">Vos souvenirs</h2>
+  <p class="centre" style="color:var(--encre-douce);margin-top:0">Photos, vidéos ou fichiers, un ou plusieurs à la fois.</p>
+
+  <div class="depot" id="depot">
+    <div class="octo"><div class="octo-inner">
+      <label class="octo-photo" for="input-fichiers" tabindex="0">
+        <svg viewBox="0 0 48 48"><path d="M24 34V12M14 22l10-10 10 10"/><path d="M8 34v6h32v-6"/></svg>
+        <strong id="depot-titre">Choisir des fichiers</strong>
+        <small id="depot-sous">ou glissez-les ici</small>
+      </label>
+      <input type="file" id="input-fichiers" multiple accept="image/*,video/*,audio/*,.pdf,.ppt,.pptx,.doc,.docx">
+    </div></div>
+  </div>
+
+  <form id="form" novalidate>
+    <label for="nom">Votre nom <small>pour savoir de qui vient l'envoi</small></label>
+    <input type="text" id="nom" autocomplete="name" placeholder="Prénom et nom">
+
+    <div id="bloc-fichiers" hidden>
+      <label>Vos fichiers <small>vous pouvez ajouter un message à afficher avec chacun</small></label>
+      <ul class="fichiers" id="liste"></ul>
+      <p class="centre" style="margin-top:12px"><button type="button" class="btn secondaire" id="btn-ajouter">Ajouter d'autres fichiers</button></p>
+    </div>
+
+
+    <div class="progression" id="progression" hidden>
+      <div class="etape" id="prog-etape">Préparation de l'envoi</div>
+      <div class="barre"><i id="prog-barre"></i></div>
+      <div class="detail"><span id="prog-pct">0 %</span><span id="prog-volume"></span><span id="prog-temps"></span></div>
+    </div>
+    <p class="global-etat" id="global-etat"></p>
+    <div class="actions">
+      <button type="button" class="btn secondaire" id="btn-retour">Retour à l'accueil</button>
+      <button type="submit" class="btn" id="btn-envoyer">Envoyer</button>
+    </div>
+  </form>
+</section>
+
+<section id="done" hidden>
+  <h2 class="script">Merci !</h2>
+  <p id="done-texte">Vos souvenirs sont bien arrivés.</p>
+  <p class="compte">Retour à l'accueil dans <span id="compte">10</span> secondes.</p>
+  <p class="centre" style="margin-top:20px"><button class="btn" id="btn-accueil">Retour à l'accueil</button></p>
+</section>
+
+</main>
+
+<script src="donnees.js"></script>
+<script src="demo/demo.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
+<script>
+const M = window.MARIAGE;
+const DEMO = !M.supabase.url;   // sans adresse Supabase dans donnees.js, la page tourne en démonstration
+/* Les textes et l'adresse Supabase se règlent dans donnees.js. Ici, seulement les réglages techniques de l'envoi. */
+const CONFIG = {
+  SUPABASE_URL: M.supabase.url,
+  SUPABASE_ANON_KEY: M.supabase.cle,
+  BUCKET: M.supabase.bucket || 'mariage',
+  CHUNK: 6 * 1024 * 1024,        // 6 Mio : taille imposée par Supabase pour l'envoi par morceaux
+  MAX_FILE_MB: 4096,
+  PARALLELE: 3,
+  RETOUR_ACCUEIL_S: 10
+};
+
+const $ = s => document.querySelector(s);
+const vues = { home: $('#home'), upload: $('#upload'), done: $('#done') };
+let fichiers = [];
+let envoiEnCours = false;
+let envoiId = null;   // réutilisé si l'invité réessaie après un échec partiel
+const sb = DEMO ? window.clientDemo() : window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+
+/* ---------- accueil : textes de donnees.js ---------- */
+const ICONES = {
+  eglise: '<path d="M24 4v6M19 10h10M24 10l-12 14v18h24V24z"/><path d="M20 42v-10a4 4 0 0 1 8 0v10"/>',
+  verres: '<path d="M14 6h10l-2 14a4 4 0 0 1-6 0zM34 6h-10l2 14a4 4 0 0 0 6 0z"/><path d="M19 24v16M29 24v16M13 42h12M23 42h12"/>',
+  mairie: '<path d="M6 18l18-10 18 10M10 18v20M38 18v20M6 42h36M18 22v14M24 22v14M30 22v14"/>',
+  repas: '<path d="M14 6v14a4 4 0 0 0 8 0V6M18 6v36M32 6c-4 4-5 10-4 18h4v18"/>',
+  coeur: '<path d="M24 40C10 30 6 22 6 16a9 9 0 0 1 18-2 9 9 0 0 1 18 2c0 6-4 14-18 24z"/>'
+};
+(function accueil(){
+  const noms = M.maries.join(' et ');
+  document.title = noms + ' · Partagez vos souvenirs';
+  $('#t-maries').textContent = noms;
+  $('#t-phrase').textContent = M.phrase || '';
+  $('#t-date').textContent = M.date || '';
+  if (M.photoCouple) $('#photo-couple').style.backgroundImage = `url("${encodeURI(M.photoCouple)}")`;
+  $('#t-moments').innerHTML = (M.moments || []).map(m =>
+    `<div><svg viewBox="0 0 48 48">${ICONES[m.icone] || ICONES.coeur}</svg><span class="script">${echap(m.titre)}</span><p class="caps">${(m.lignes || []).map(echap).join('<br>')}</p></div>`
+  ).join('<div class="filet"></div>');
+  $('#t-moments').hidden = !(M.moments || []).length;
+  $('#t-encart-titre').textContent = M.encart.titre;
+  $('#t-encart-texte').innerHTML = M.encart.lignes.map(echap).join('<br>');
+})();
+
+function montrer(nom){
+  Object.entries(vues).forEach(([k,el]) => el.hidden = (k !== nom));
+  window.scrollTo({top:0, behavior:'instant'});
+}
+$('#btn-vers-envoi').onclick = () => montrer('upload');
+$('#btn-retour').onclick = () => { if (!envoiEnCours) { reinitialiser(); montrer('home'); } };
+$('#btn-accueil').onclick = () => { clearInterval(compteur); reinitialiser(); montrer('home'); };
+
+const mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && innerWidth < 900);
+if (mobile) {
+  $('#depot-titre').textContent = 'Choisir depuis mon téléphone';
+  $('#depot-sous').textContent = 'photos, vidéos ou fichiers';
+}
+
+const input = $('#input-fichiers');
+input.addEventListener('change', () => { ajouterFichiers(input.files); input.value = ''; });
+$('#btn-ajouter').onclick = () => input.click();
+const depot = $('#depot');
+['dragenter','dragover'].forEach(ev => depot.addEventListener(ev, e => { e.preventDefault(); depot.classList.add('survol'); }));
+['dragleave','drop'].forEach(ev => depot.addEventListener(ev, e => { e.preventDefault(); depot.classList.remove('survol'); }));
+depot.addEventListener('drop', e => ajouterFichiers(e.dataTransfer.files));
+$('.depot .octo-photo').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } });
+
+function ajouterFichiers(liste){
+  const trop = [];
+  [...liste].forEach(file => {
+    if (file.size > CONFIG.MAX_FILE_MB * 1024 * 1024) { trop.push(file.name); return; }
+    if (fichiers.some(f => f.file.name === file.name && f.file.size === file.size)) return;
+    const f = { file, msg:'', chemin:null, journalise:false };
+    f.li = rendreLigne(f);
+    $('#liste').appendChild(f.li);
+    fichiers.push(f);
+  });
+  $('#bloc-fichiers').hidden = fichiers.length === 0;
+  if (trop.length) afficherEtat(`Fichier trop volumineux (max ${CONFIG.MAX_FILE_MB} Mo) : ${trop.join(', ')}`, true);
+}
+
+function rendreLigne(f){
+  const li = document.createElement('li');
+  const vig = document.createElement(f.file.type.startsWith('image/') ? 'img' : 'div');
+  vig.className = 'vignette';
+  if (f.file.type.startsWith('image/')) { vig.src = URL.createObjectURL(f.file); vig.alt = ''; }
+  else vig.textContent = f.file.type.startsWith('video/') ? 'vidéo' : f.file.type.startsWith('audio/') ? 'audio' : 'fichier';
+
+  const centre = document.createElement('div');
+  centre.innerHTML = `<div class="fichier-nom">${echap(f.file.name)} <span>(${taille(f.file.size)})</span></div>`;
+  const ta = document.createElement('textarea');
+  ta.className = 'fichier-msg'; ta.rows = 1; ta.placeholder = 'Message à afficher avec ce fichier (facultatif)';
+  ta.oninput = () => f.msg = ta.value;
+  centre.appendChild(ta);
+  const barre = document.createElement('div'); barre.className = 'barre'; barre.innerHTML = '<i></i>'; barre.hidden = true;
+  const etat = document.createElement('div'); etat.className = 'etat';
+  centre.appendChild(barre); centre.appendChild(etat);
+  f.barre = barre.firstChild; f.etat = etat; f.ta = ta;
+
+  const retirer = document.createElement('button');
+  retirer.type = 'button'; retirer.className = 'retirer'; retirer.textContent = '×'; retirer.title = 'Retirer';
+  retirer.onclick = () => { if (envoiEnCours) return; prog.parFichier.delete(f); fichiers = fichiers.filter(x => x !== f); li.remove(); $('#bloc-fichiers').hidden = fichiers.length === 0; };
+
+  li.append(vig, centre, retirer);
+  return li;
+}
+
+/* ---------- envoi ---------- */
+$('#form').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (envoiEnCours) return;
+  const nom = $('#nom').value.trim();
+  const message = '';
+  if (!nom) { afficherEtat('Indiquez votre nom pour que l\'organisateur sache de qui vient l\'envoi.', true); $('#nom').focus(); return; }
+  if (!fichiers.length) { afficherEtat('Ajoutez au moins un fichier.', true); return; }
+
+  envoiEnCours = true; verrouiller(true); afficherEtat('');
+  const aFaire = fichiers.filter(f => !f.chemin);
+  prog.demarrer(aFaire);
+  let veille = null;
+  try { if (navigator.wakeLock) veille = await navigator.wakeLock.request('screen'); } catch {}
+  try {
+    prog.etape('Préparation de l\'envoi');
+    if (!envoiId) {
+      envoiId = crypto.randomUUID();
+      await reessayer(async () => {
+        const { error } = await sb.from('envois').insert({ id: envoiId, invite_nom: nom, message: message || null, appareil: mobile ? 'mobile' : 'ordinateur', nb_fichiers: fichiers.length });
+        if (error) throw new Error(error.message);
+      });
+    }
+    prog.etape(`Envoi de ${aFaire.length} fichier${aFaire.length > 1 ? 's' : ''}`);
+
+    let index = 0;
+    const travailleur = async () => {
+      while (index < aFaire.length) {
+        const f = aFaire[index++];
+        try { await envoyerFichier(f); }
+        catch (err) { f.etat.textContent = 'Échec : ' + err.message; f.etat.className = 'etat err'; f.barre.style.width = '0'; }
+      }
+    };
+    await Promise.all(Array.from({ length: CONFIG.PARALLELE }, travailleur));
+
+    prog.etape('Finalisation');
+    const aJournaliser = fichiers.filter(f => f.chemin && !f.journalise);
+    if (aJournaliser.length) {
+      await reessayer(async () => {
+        const { error } = await sb.from('fichiers').insert(aJournaliser.map(f => ({
+          envoi_id: envoiId, chemin: f.chemin, nom_original: f.file.name, taille: f.file.size,
+          type_mime: f.file.type || null, message: f.msg.trim() || null
+        })));
+        if (error) throw new Error(error.message);
+      });
+      aJournaliser.forEach(f => f.journalise = true);
+    }
+
+    const ok = fichiers.filter(f => f.chemin).length;
+    const rates = fichiers.length - ok;
+    prog.terminer();
+    if (rates) {
+      afficherEtat(`${ok} fichier(s) envoyé(s), ${rates} en échec. Cliquez à nouveau sur Envoyer : seuls les fichiers en échec seront renvoyés.`, true);
+    } else {
+      $('#done-texte').textContent = ok === 1 ? 'Votre fichier est bien arrivé.' : `Vos ${ok} fichiers sont bien arrivés.`;
+      montrer('done'); lancerCompteur();
+    }
+  } catch (err) {
+    prog.terminer();
+    afficherEtat('Envoi impossible : ' + err.message, true);
+  } finally {
+    envoiEnCours = false; verrouiller(false);
+    if (veille) { try { veille.release(); } catch {} }
+  }
+});
+
+async function reessayer(fn, n = 3){
+  for (let i = 0; ; i++) {
+    try { return await fn(); }
+    catch (err) { if (i >= n) throw err; await new Promise(r => setTimeout(r, 1000 * (i + 1))); }
+  }
+}
+
+function nomSur(n){ return n.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 120); }
+
+/* Envoi par morceaux avec reprise (protocole tus), directement vers Supabase Storage. */
+function envoyerFichier(f){
+  return new Promise((resolve, reject) => {
+    f.barre.parentElement.hidden = false; f.etat.className = 'etat'; f.etat.textContent = 'Envoi...';
+    if (DEMO) {   // démonstration : l'envoi est simulé, le fichier ne quitte pas l'appareil
+      let fait = 0; const pas = Math.max(1, f.file.size / 12);
+      const t = setInterval(() => {
+        fait = Math.min(f.file.size, fait + pas);
+        const pct = Math.round(fait / (f.file.size || 1) * 100);
+        f.barre.style.width = pct + '%'; f.etat.textContent = `Envoi ${pct} %`; prog.maj(f, fait);
+        if (fait >= f.file.size) { clearInterval(t); f.chemin = URL.createObjectURL(f.file); f.etat.textContent = 'Envoyé (démonstration)'; f.etat.className = 'etat ok'; resolve(); }
+      }, 120);
+      return;
+    }
+    const chemin = `${envoiId}/${crypto.randomUUID().slice(0, 8)}-${nomSur(f.file.name)}`;
+    const upload = new tus.Upload(f.file, {
+      endpoint: `${CONFIG.SUPABASE_URL}/storage/v1/upload/resumable`,
+      retryDelays: [0, 1000, 3000, 6000, 12000],
+      headers: { authorization: `Bearer ${CONFIG.SUPABASE_ANON_KEY}`, apikey: CONFIG.SUPABASE_ANON_KEY, 'x-upsert': 'false' },
+      uploadDataDuringCreation: true,
+      removeFingerprintOnSuccess: true,
+      metadata: { bucketName: CONFIG.BUCKET, objectName: chemin, contentType: f.file.type || 'application/octet-stream', cacheControl: '3600' },
+      chunkSize: CONFIG.CHUNK,
+      onError: err => reject(new Error((err && err.message || String(err)).replace(/^tus: /, '').slice(0, 120))),
+      onProgress: (fait) => {
+        const pct = Math.round(fait / f.file.size * 100);
+        f.barre.style.width = pct + '%'; f.etat.textContent = `Envoi ${pct} %`;
+        prog.maj(f, fait);
+      },
+      onSuccess: () => {
+        f.chemin = chemin;
+        f.barre.style.width = '100%'; f.etat.textContent = 'Envoyé'; f.etat.className = 'etat ok';
+        prog.maj(f, f.file.size); resolve();
+      }
+    });
+    upload.start();
+  });
+}
+
+/* Barre globale : octets envoyés / total, vitesse lissée, temps restant. */
+const prog = {
+  total: 0, parFichier: new Map(), debut: 0, vitesse: 0, dernierT: 0, dernierOctets: 0,
+  demarrer(liste){
+    this.total = liste.reduce((a, f) => a + f.file.size, 0); this.parFichier.clear();
+    this.debut = Date.now(); this.vitesse = 0; this.dernierT = this.debut; this.dernierOctets = 0;
+    $('#progression').hidden = false; $('#prog-barre').style.width = '0%'; $('#prog-pct').textContent = '0 %';
+    $('#prog-volume').textContent = this.total ? `0 / ${taille(this.total)}` : ''; $('#prog-temps').textContent = '';
+  },
+  etape(txt){ $('#prog-etape').textContent = txt; },
+  maj(f, octets){
+    this.parFichier.set(f, octets);
+    const fait = [...this.parFichier.values()].reduce((a, b) => a + b, 0);
+    const pct = this.total ? Math.min(99, Math.round(fait / this.total * 100)) : 0;
+    $('#prog-barre').style.width = pct + '%'; $('#prog-pct').textContent = pct + ' %';
+    $('#prog-volume').textContent = `${taille(fait)} / ${taille(this.total)}`;
+    const t = Date.now();
+    if (t - this.dernierT > 800) {
+      const v = (fait - this.dernierOctets) / ((t - this.dernierT) / 1000);
+      this.vitesse = this.vitesse ? this.vitesse * 0.7 + v * 0.3 : v;
+      this.dernierT = t; this.dernierOctets = fait;
+      if (this.vitesse > 0) $('#prog-temps').textContent = 'reste ' + duree((this.total - fait) / this.vitesse);
+    }
+  },
+  terminer(){ $('#prog-barre').style.width = '100%'; $('#prog-pct').textContent = '100 %'; $('#prog-temps').textContent = ''; setTimeout(() => { $('#progression').hidden = true; }, 600); }
+};
+function duree(sec){ sec = Math.max(1, Math.round(sec)); return sec < 60 ? `${sec} s` : `${Math.floor(sec/60)} min ${String(sec%60).padStart(2,'0')} s`; }
+
+function verrouiller(b){
+  $('#btn-envoyer').disabled = b; $('#btn-retour').disabled = b; $('#btn-ajouter').disabled = b;
+  $('#nom').disabled = b;
+  fichiers.forEach(f => f.ta.disabled = b);
+}
+function afficherEtat(txt, err){ const el = $('#global-etat'); el.textContent = txt; el.className = 'global-etat' + (err ? ' err' : ''); }
+function reinitialiser(){
+  fichiers = []; envoiId = null; $('#liste').innerHTML = ''; $('#bloc-fichiers').hidden = true;
+  $('#nom').value = ''; afficherEtat('');
+}
+let compteur;
+function lancerCompteur(){
+  let n = CONFIG.RETOUR_ACCUEIL_S; $('#compte').textContent = n;
+  compteur = setInterval(() => { n--; $('#compte').textContent = n; if (n <= 0) { clearInterval(compteur); reinitialiser(); montrer('home'); } }, 1000);
+}
+function taille(o){ return o < 1048576 ? (o/1024).toFixed(0) + ' Ko' : o < 1073741824 ? (o/1048576).toFixed(1) + ' Mo' : (o/1073741824).toFixed(2) + ' Go'; }
+function echap(s){ return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+</script>
+</body>
+</html>
