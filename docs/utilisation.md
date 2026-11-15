@@ -32,9 +32,39 @@ Ouvrez `projection.html` sur l'ordinateur relié à l'écran, puis passez en ple
 | `R` | Recharger la liste des envois |
 
 - La liste est relue toutes les 20 secondes. Un nouvel envoi passe en priorité, puis rejoint le mélange.
-- Les médias sont téléchargés en mémoire au fil de l'eau. En cas de coupure de réseau, la projection continue avec ce qui est déjà en mémoire, et le compteur en bas à droite l'indique.
 - Les vidéos passent sans le son et sont coupées au bout de 45 secondes.
-- Fermer l'onglet vide la mémoire : il reste ouvert toute la soirée.
+
+### La taille des photos à l'écran
+
+Chaque photo est affichée en entier, sans déformation ni recadrage, à la plus grande taille que l'écran permet.
+
+| Photo | Affichage |
+|---|---|
+| Paysage ou carrée | Sur presque toute la hauteur de l'écran, la légende posée dans un coin |
+| Portrait | Sur toute la hauteur disponible |
+| Très étroite, comme une capture d'écran de téléphone | La légende passe sous la photo, pour ne pas la recouvrir |
+| Panoramique | Sur toute la largeur de l'écran |
+| Petite, comme une image reçue par messagerie | Agrandie, 4 fois au plus pour ne pas devenir floue |
+
+### Projeter avec peu de réseau
+
+Le réseau d'une salle des fêtes est souvent faible ou instable. La projection est faite pour s'en passer une fois lancée.
+
+Le principe : dès son ouverture, la page télécharge toutes les photos et toutes les vidéos dans la mémoire de l'ordinateur, une par une, les photos d'abord. Elle projette ensuite depuis cette mémoire, et non depuis Internet. Le compteur en bas à droite de l'écran indique l'avancement, par exemple « 42/60 en mémoire ».
+
+La marche à suivre :
+
+1. Ouvrez la projection à l'avance, là où le réseau est bon : chez soi, ou en partage de connexion depuis un téléphone.
+2. Attendez que le compteur soit complet, par exemple « 60/60 en mémoire ».
+3. Ne fermez pas l'onglet et ne rechargez pas la page : la mémoire serait vidée et tout serait à télécharger de nouveau.
+
+Pendant la soirée :
+
+- Sans réseau, la projection continue avec ce qui est en mémoire. Le compteur passe en rouge et indique « hors ligne ».
+- Les nouveaux envois des invités ne peuvent arriver à l'écran que si l'ordinateur a du réseau à ce moment. Un partage de connexion suffit : la page reprend seule dès que le réseau revient.
+- La touche `V` retire les vidéos de la projection.
+
+Les vidéos sont les plus lourdes à télécharger et à garder en mémoire. Avec plusieurs centaines de fichiers, un ordinateur récent est préférable.
 
 ## Le programme
 

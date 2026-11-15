@@ -9,7 +9,7 @@ Le site réunit 4 pages, chacune pour un public. La page de dépôt est **optimi
 | Dépôt des souvenirs | Les invités, sans compte | Envoyer des photos, des vidéos et un mot | [Ouvrir](https://famickael.github.io/projection-mariage/) |
 | Administration | Les organisateurs, avec un compte | Vérifier les photos et les mots, les corriger, les retirer, tout télécharger | [Ouvrir](https://famickael.github.io/projection-mariage/admin.html) |
 | Projection | L'écran de la soirée | Faire défiler les souvenirs en continu, dès leur arrivée | [Ouvrir](https://famickael.github.io/projection-mariage/projection.html) |
-| Programme | L'équipe qui organise | Tenir le déroulé du week-end à plusieurs, à l'abri des mariés | [Ouvrir](https://famickael.github.io/projection-mariage/programme.html) |
+| Programme | L'équipe qui organise | Tenir le programme du mariage à plusieurs, à l'abri des mariés | [Ouvrir](https://famickael.github.io/projection-mariage/programme.html) |
 
 > **In English.** A reusable template for a wedding keepsake site, made of 4 pages: guest upload, moderation, live slideshow and a shared schedule for the organizing team. It is a static site with no build step, backed by a Supabase project, and all wedding-specific content lives in a single file, `donnees.js`. The pages, the sample data and the documentation are in French.
 
@@ -19,8 +19,11 @@ Le site réunit 4 pages, chacune pour un public. La page de dépôt est **optimi
     <td><img src="docs/captures/02-administration.jpg" alt="Administration : un envoi, ses photos, les boutons Projeté, Télécharger et Supprimer" width="330"></td>
   </tr>
   <tr>
-    <td><img src="docs/captures/04-programme.jpg" alt="Programme sur téléphone : planning d'une journée avec ses moments" width="190"></td>
-    <td><img src="docs/captures/03-projection.jpg" alt="Projection : une photo posée sur les précédentes, avec le nom de l'invité" width="330"></td>
+    <td><img src="docs/captures/04-programme-telephone.jpg" alt="Programme sur téléphone : liste des moments d'une journée" width="190"></td>
+    <td><img src="docs/captures/05-programme-ordinateur.jpg" alt="Programme sur ordinateur : planning d'une journée, avec ses phases et ses moments" width="330"></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/captures/03-projection.jpg" alt="Projection : une photo posée sur les précédentes, avec le nom de l'invité" width="530"></td>
   </tr>
 </table>
 
@@ -33,8 +36,8 @@ L'exemple fourni est le mariage de Camille et Antonin. **Toutes les données son
 | Dépôt sans compte | Un nom, des fichiers, un mot facultatif par fichier |
 | Gros fichiers | Envoi par morceaux, avec reprise après une courte coupure de réseau et temps restant affiché |
 | Modération | Chaque envoi et chaque fichier peut être retiré de la projection, corrigé ou supprimé |
-| Projection | Photos et vidéos mélangées, avec le mot et le nom de l'invité. Un nouvel envoi passe en priorité |
-| Coupure de réseau | Les médias sont gardés en mémoire, la projection continue hors ligne |
+| Projection | Photos et vidéos mélangées, chacune à sa plus grande taille possible, avec le mot et le nom de l'invité. Un nouvel envoi passe en priorité |
+| Peu de réseau | La projection télécharge les photos et les vidéos à l'avance, puis continue sans connexion |
 | Archive | Téléchargement de tous les souvenirs en un fichier zip, et export des mots dans un fichier CSV, lisible par un tableur |
 | Programme | Moments déplaçables, moments verrouillés, phases de la journée, repère de l'heure en cours |
 | Démonstration | Sans aucun réglage, les 4 pages s'ouvrent avec un contenu fictif et rien n'est envoyé |

@@ -10,7 +10,7 @@ Le site répond à 3 besoins liés :
 
 1. Réunir les photos et les vidéos des invités au même endroit, dans leur qualité d'origine.
 2. Les montrer le soir même, sur l'écran de la salle.
-3. Donner à l'équipe qui organise un déroulé commun du week-end, que les mariés ne voient pas.
+3. Donner à l'équipe qui organise un programme commun du mariage, sur plusieurs jours, que les mariés ne voient pas.
 
 ## Les publics
 
@@ -32,7 +32,8 @@ Le site répond à 3 besoins liés :
 | Envoi par morceaux, avec reprise après une courte coupure | Une vidéo de téléphone pèse plusieurs centaines de Mo, et le réseau d'une salle des fêtes est instable |
 | Un interrupteur « Projeté » distinct de la suppression | Retirer une photo de l'écran ne doit pas la retirer de l'archive |
 | Les nouveaux envois passent en priorité | L'invité voit sa photo à l'écran peu après l'avoir envoyée, ce qui incite les autres à déposer |
-| Les médias gardés en mémoire | La projection ne dépend plus du réseau une fois lancée |
+| Les médias téléchargés à l'avance et gardés en mémoire | La projection ne dépend plus du réseau une fois lancée |
+| Une taille calculée pour chaque photo | Les invités envoient tous les formats, du panorama à la capture d'écran |
 | Projection et programme ouverts par défaut | Le jour du mariage, personne ne cherche un mot de passe |
 | Des journées de 6h à 6h dans le programme | Une soirée de mariage se termine après minuit |
 | Des moments verrouillés | Les heures imposées (cérémonie, traiteur) ne bougent pas quand le reste glisse |

@@ -48,14 +48,20 @@
     max-width:calc(100vw - 4vmin);max-height:calc(100vh - 8.5vmin)}
   .cadre .media{position:relative;outline:.35vmin solid var(--bordeaux);outline-offset:-.35vmin;background:var(--papier-fonce);line-height:0}
   .cadre img,.cadre video{display:block;max-width:calc(100vw - 6vmin);max-height:calc(100vh - 10.5vmin);width:auto;height:auto;object-fit:contain}
-  .cadre img{min-width:40vmin;min-height:30vmin}
-  .cadre video{min-width:60vmin;min-height:34vmin}
+  /* La taille exacte de chaque photo est calculée par ajuster() : le cadre épouse la photo, quel que soit son format. */
   /* légende sur la photo, en bas à droite */
   .legende{position:absolute;right:1.6vmin;bottom:1.6vmin;max-width:min(50%,60vmin);background:rgba(255,255,255,.9);padding:.9vmin 1.4vmin .8vmin;
     text-align:right;box-shadow:0 .3vmin 1.2vmin rgba(0,0,0,.25);border-left:.4vmin solid var(--bordeaux)}
   .legende .mot{font-size:2.3vmin;font-style:italic;color:var(--encre);line-height:1.3;white-space:pre-wrap;margin-bottom:.4vmin;max-height:22vh;overflow:hidden}
   .legende .qui{font-size:1.5vmin;color:var(--encre-douce);line-height:1.7;margin-top:.8vmin}
   .legende .qui .nom{font-family:"Sacramento",cursive;color:var(--bordeaux);font-size:2.8vmin;margin-left:.6vmin;letter-spacing:0;font-variant:normal}
+  .legende .qui .nom{white-space:nowrap}
+  /* photo étroite : la légende passe sous la photo au lieu de la recouvrir */
+  .cadre.etroite{min-width:46vmin}
+  .cadre.etroite .media{background:#fff;line-height:normal}
+  .cadre.etroite .media img,.cadre.etroite .media video{margin:0 auto}
+  .cadre.etroite .legende{position:static;width:0;min-width:100%;max-width:none;background:#fff;box-shadow:none;border-left:0;text-align:center;padding:1.2vmin .6vmin .4vmin;line-height:1.3}
+  .cadre.etroite .legende .qui .nom{white-space:normal}
   .attente{position:static;width:80vw;display:flex;flex-direction:column;align-items:center;gap:2.5vmin;text-align:center}
   .attente .script{font-size:12vmin}
   .attente .caps{font-size:3vmin;color:var(--encre-douce)}
@@ -276,6 +282,8 @@ function afficher(it){
     d.style.setProperty('--rot', ((Math.random() * 4) - 2).toFixed(2) + 'deg');
     d.style.setProperty('--dx', ((Math.random() * 3) - 1.5).toFixed(2) + 'vmin');
     d.style.setProperty('--dy', ((Math.random() * 3) - 1.5).toFixed(2) + 'vmin');
+    const el = d.querySelector('img,video');
+    el.addEventListener(it.type === 'photo' ? 'load' : 'loadedmetadata', () => ajuster(d));
     if (it.type === 'video') {
       const v = d.querySelector('video');
       v.addEventListener('ended', () => { if (!enPause) suivant(); });
@@ -287,6 +295,28 @@ function afficher(it){
   requestAnimationFrame(() => d.classList.add('visible'));
   if (!enPause) timer = setTimeout(suivant, duree);
 }
+
+/* Taille d'une photo ou d'une vidéo à l'écran : la plus grande possible sans déformation ni débordement.
+   Une petite image est agrandie, 4 fois au plus pour ne pas devenir floue.
+   Si le résultat est étroit, la légende passe sous l'image pour ne pas la recouvrir. */
+function ajuster(d){
+  const el = d.querySelector('img,video'), cadre = d.querySelector('.cadre'); if (!el || !cadre) return;
+  const nw = el.naturalWidth || el.videoWidth, nh = el.naturalHeight || el.videoHeight; if (!nw || !nh) return;
+  const vmin = Math.min(innerWidth, innerHeight) / 100;
+  const maxL = innerWidth - 6 * vmin, maxH = innerHeight - 10.5 * vmin;
+  const taille = h => { const e = Math.min(maxL / nw, h / nh, 4); return [Math.round(nw * e), Math.round(nh * e)]; };
+  let [l, h] = taille(maxH);
+  cadre.classList.toggle('etroite', l < 60 * vmin);
+  el.style.width = l + 'px'; el.style.height = h + 'px';
+  if (cadre.classList.contains('etroite')) {
+    const leg = d.querySelector('.legende');
+    [l, h] = taille(maxH - leg.offsetHeight);
+    el.style.width = l + 'px'; el.style.height = h + 'px';
+    [l, h] = taille(maxH - leg.offsetHeight);   // la légende a pu changer de hauteur avec la nouvelle largeur
+    el.style.width = l + 'px'; el.style.height = h + 'px';
+  }
+}
+window.addEventListener('resize', () => document.querySelectorAll('.diapo').forEach(ajuster));
 
 /* ---------- commandes ---------- */
 document.addEventListener('keydown', e => {

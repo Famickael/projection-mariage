@@ -12,6 +12,7 @@ Révision réalisée avec Claude.
 - Vérification du fichier de données avec `?verifier`.
 - Scripts Supabase : création, option d'accès par compte à la projection et au programme, fermeture après le mariage.
 - Projection : les aides à l'écran (raccourcis, pause, état de la mémoire) et l'écran d'attente retrouvent leur mise en forme.
+- Projection : la taille de chaque photo est calculée selon son format. Une petite photo est agrandie, une photo étroite reçoit sa légende dessous.
 - Sécurité : textes venus de la base échappés dans l'administration et le programme, droits Supabase resserrés pour les envois masqués.
 - Administration : le mot général d'un envoi, qui n'était plus saisi ni projeté, est retiré. 2 fichiers de même nom ne s'écrasent plus dans le zip.
 - Documentation : README, pages du dossier `docs/`, guide pour les assistants IA.
